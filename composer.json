@@ -1,0 +1,29 @@
+{
+    "name": "popplestones/quickbooks-helper",
+    "description": "Everything you need to integrate Quickbooks with Laravel",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Popplestones\\Quickbooks\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Shane Poppleton",
+            "email": "shane@alphasg.com.au"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Popplestones\\Quickbooks\\Providers\\QuickbooksHelperServiceProvider"
+            ],
+            "aliases": {
+                "Quickbooks": "Popplestones\\Quickbooks\\Facades\\QuickbooksFacade"
+            }
+        }
+    }
+}
