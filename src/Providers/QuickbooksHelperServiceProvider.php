@@ -2,6 +2,8 @@
 
 namespace Popplestones\Quickbooks\Providers;
 
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Popplestones\Quickbooks\Console\Commands\QbAccountImport;
 use Popplestones\Quickbooks\Console\Commands\QbAccountSync;
@@ -14,6 +16,7 @@ use Popplestones\Quickbooks\Console\Commands\QbItemImport;
 use Popplestones\Quickbooks\Console\Commands\QbItemSync;
 use Popplestones\Quickbooks\Console\Commands\QbPaymentMethodImport;
 use Popplestones\Quickbooks\Console\Commands\QbTaxCodeImport;
+use Popplestones\Quickbooks\Services\QuickbooksClient;
 
 class QuickbooksHelperServiceProvider extends ServiceProvider
 {
@@ -21,6 +24,7 @@ class QuickbooksHelperServiceProvider extends ServiceProvider
     {
         $this
             ->registerViews()
+            ->registerBladeDirectives()
             ->registerRoutes()
             ->registerMigrations()
             ->registerCommands()
@@ -61,9 +65,40 @@ class QuickbooksHelperServiceProvider extends ServiceProvider
         return $this;
     }
 
+    public function registerBladeDirectives(): self
+    {
+
+        Blade::if('Connected', fn() => app('Quickbooks')->hasValidRefreshToken());
+
+
+        return $this;
+    }
+    
     private function registerRoutes(): self
     {
-        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        $config = $this->app->config->get('quickbooks.route');
+
+        $this->app->router
+        ->prefix($config['prefix'])
+        ->as('quickbooks.')
+        ->middleware($config['middleware']['default'])
+        ->namespace('Popplestones\Quickbooks\Http\Controllers')
+        ->group(function (Router $router) use ($config) {
+            $router
+                ->get($config['paths']['connect'], 'QuickbooksController@connect')
+                ->middleware($config['middleware']['authenticated'])
+                ->name('connect');
+
+            $router
+                ->delete($config['paths']['disconnect'], 'QuickbooksController@disconnect')
+                ->middleware($config['middleware']['authenticated'])
+                ->name('disconnect');
+
+            $router
+                ->get($config['paths']['token'], 'QuickbooksController@token')
+                ->name('token');
+
+        });
 
         return $this;
     }

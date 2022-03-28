@@ -6,5 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Popplestones\\QuickbooksHelper\\' => array($baseDir . '/src'),
+    'QuickBooksOnline\\API\\' => array($vendorDir . '/quickbooks/v3-php-sdk/src'),
+    'Popplestones\\Quickbooks\\' => array($baseDir . '/src'),
 );

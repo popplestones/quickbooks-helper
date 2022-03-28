@@ -1,6 +1,23 @@
 <?php
 
 return [
+    'account' => [
+        'model' => 'App\Models\Account',
+        'attributeMap' => [
+            'id' => 'id',
+            'name' => 'name',
+            'description' => 'description',
+            'sub_account' => 'sub_account',
+            'fully_qualified_name' => 'fully_qualified_name',
+            'active' => 'active',
+            'classification' => 'classification',
+            'account_type' => 'account_type',
+            'account_sub_type' => 'account_sub_type',
+            'currency_ref' => 'currency_ref',
+            'qb_account_id' => 'qb_account_id',
+            'sync_failed' => 'sync_failed'
+        ]
+    ],
     'invoice' => [
         'settings' => [
             'austax' => '',

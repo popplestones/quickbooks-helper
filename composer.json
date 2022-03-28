@@ -15,7 +15,9 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "quickbooks/v3-php-sdk": "dev-master"
+    },
     "extra": {
         "laravel": {
             "providers": [

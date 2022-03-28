@@ -7,14 +7,22 @@ namespace Composer\Autoload;
 class ComposerStaticInit336f3a5fab578862ca8e58407ebabfa8
 {
     public static $prefixLengthsPsr4 = array (
+        'Q' => 
+        array (
+            'QuickBooksOnline\\API\\' => 21,
+        ),
         'P' => 
         array (
-            'Popplestones\\QuickbooksHelper\\' => 30,
+            'Popplestones\\Quickbooks\\' => 24,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Popplestones\\QuickbooksHelper\\' => 
+        'QuickBooksOnline\\API\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/quickbooks/v3-php-sdk/src',
+        ),
+        'Popplestones\\Quickbooks\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
