@@ -4,6 +4,7 @@ namespace Popplestones\Quickbooks\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Popplestones\Quickbooks\Facades\CallbackManager;
 use QuickBooksOnline\API\Facades\Account;
 use Popplestones\Quickbooks\Services\QuickbooksHelper;
 
@@ -34,7 +35,10 @@ class QbAccountSync extends Command
         $accountMapping = config('quickbooks.account.attributeMap');
         $qb_helper = new QuickbooksHelper();
 
-        $query = $qb_helper->accounts();
+        
+        $query = (CallbackManager::getCallbacks('accounts')->query)();
+
+        
 
         if (!$query)
         {
@@ -45,7 +49,7 @@ class QbAccountSync extends Command
         if ($ids = $this->option('id'))
             $query->whereIn($accountMapping['id'], $ids);
         else {
-            QuickbooksHelper::applyAccountsFilter($query);
+            app('CallbackManager')->filter('accounts', $query);
             $query
                 ->where($accountMapping['sync_failed'], '<', self::MAX_FAILED)
                 ->limit($this->option('limit'));

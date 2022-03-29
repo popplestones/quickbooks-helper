@@ -3,10 +3,11 @@
 namespace Popplestones\Quickbooks\Traits;
 
 use Closure;
+use Illuminate\Support\Collection;
 
 trait QueriesAccounts
 {
-
+    public static Collection $callbacks;
     private static ?Closure $accountQuery = null;
     private static ?Closure $accountFilter = null;    
 

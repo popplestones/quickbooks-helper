@@ -8,6 +8,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 
 class QbCustomerImport extends Command
 {
+    use ImportsModels;
     /**
      * The name and signature of the console command.
      *
@@ -29,52 +30,65 @@ class QbCustomerImport extends Command
      */
     public function handle()
     {
-        $startPosition = 1;
-        $maxResults = 100;
-        $noOfRows = 0;
+        $modelName = config('quickbooks.customer.model');
+        $mapping = config('quickbooks.customer.attributeMap');
+        $addressModel = config('quickbooks.customer.address.model');
+        $addressMapping = config('quickbooks.customer.address.attributeMap');
 
-        $qb_helper = new QuickbooksHelper();
-        $modelName =config('quickbooks.customer.model');
-        $customerMapping = config('quickbooks.customer.attributeMap');
-
-        $model = "";
-
-        try
-        {
-            $model = app($modelName);
-
-        } catch (BindingResolutionException $ex)
-        {
-            $this->error("Invalid model '{$modelName}'. Setup the model in the quickbooks.php config file.");
-            return 1;
-        }
-
-        do
-        {
-            $rows = collect($qb_helper->dsCall('Query', "SELECT * FROM Customer WHERE Active=true STARTPOSITION {$startPosition} MAXRESULTS {$maxResults}"));
-            $this->info(json_encode($rows));
-            return 1;
-            $rows->each(function($row) use ($model, $customerMapping) {
-                $model::updateOrCreate([$customerMapping['qb_customer_id'] => $row->Id], [
-                    $customerMapping['id'] => $row->Id,
-                    $customerMapping['name'] => $row->Name,
-                    $customerMapping['description'] => $row->Description,
-                    $customerMapping['sub_customer'] => $row->Subcustomer === 'true',
-                    $customerMapping['fully_qualified_name'] => $row->FullyQualifiedName,
-                    $customerMapping['active'] => $row->Active === 'true',
-                    $customerMapping['classification'] => $row->Classification,
-                    $customerMapping['customer_type'] => $row->customerType,
-                    $customerMapping['customer_sub_type'] => $row->customerSubType,
-                    $customerMapping['currency_ref'] => $row->CurrencyRef
-                ]);
-            });
-
-            $noOfRows = $rows->count();
-
-            $this->info("Query from {$startPosition} & max {$maxResults}. No of rows: {$noOfRows}");
-            $startPosition += $maxResults;
-        } while (!is_null($rows) && is_array($rows) && $noOfRows > $maxResults);
-
+        $this->importModels(
+            modelName: $modelName,
+            mapping: $mapping,
+            idField: 'qb_customer_id',
+            tableName: 'Customer',
+            callback: function($row) use ($modelName, $mapping, $addressModel, $addressMapping) {
+                $customer = app($modelName)::updateOrCreate([$mapping['qb_customer_id'] => $row->Id], $this->setDataMapping($row, $mapping));
+                $addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', $addressMapping));
+                $addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'shipping'], $this->setAddressMapping($row, 'ShipAddr', $addressMapping));
+            }
+        );
+            
         return 0;
+    }
+
+    protected function setAddressMapping($row, $type, $mapping)
+    {
+        return [
+            $mapping['line1'] => $row->$type?->Line1,
+            $mapping['line2'] => $row->$type?->Line2,
+            $mapping['line3'] => $row->$type?->Line3,
+            $mapping['line4'] => $row->$type?->Line4,
+            $mapping['line5'] => $row->$type?->Line5,
+            $mapping['city'] => $row->$type?->City,
+            $mapping['country'] => $row->$type?->Country,
+            $mapping['country_code'] => $row->$type?->CountryCode,
+            $mapping['country'] => $row->$type?->Country,
+            $mapping['country_sub_division_code'] => $row->$type?->CountrySubDivisionCode,
+            $mapping['postal_code'] => $row->$type?->PostalCode,
+            $mapping['postal_code_suffix'] => $row->$type?->PostalCodeSuffix,
+            $mapping['lattitude'] => $row->$type?->Lat,
+            $mapping['longitude'] => $row->$type?->Long,
+            $mapping['tag'] => $row->$type?->Tag,
+            $mapping['note'] => $row->$type?->Note
+        ];
+    }
+
+    protected function setDataMapping($row, $mapping)
+    {
+        return [
+            $mapping['given_name'] => $row->GivenName,
+            $mapping['family_name'] => $row->FamilyName,
+            $mapping['fully_qualified_name'] => $row->FullyQualifiedName,
+            $mapping['company_name'] => $row->CompanyName,
+            $mapping['display_name'] => $row->DisplayName,
+            $mapping['print_on_check_name'] => $row->PrintOnCheckName,
+            $mapping['active'] => $row->Active === 'true',
+            $mapping['taxable'] => $row->Taxable === 'true',
+            $mapping['job'] => $row->Job === 'true',
+            $mapping['bill_with_parent'] => $row->BillWithParent === 'true',
+            $mapping['currency_ref'] => $row->CurrencyRef,
+            $mapping['preferred_delivery_method'] => $row->PreferredDeliveryMethod,
+            $mapping['is_project'] => $row->IsProject === 'true',
+            $mapping['primary_email_addr'] => $row->PrimaryEmailAddr
+        ];
     }
 }

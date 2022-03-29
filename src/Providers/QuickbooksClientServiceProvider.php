@@ -3,7 +3,7 @@
 namespace Popplestones\Quickbooks\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
+use Popplestones\Quickbooks\Services\CallbackManager;
 use Popplestones\Quickbooks\Services\QuickbooksClient;
 
 /**
@@ -32,7 +32,10 @@ class QuickbooksClientServiceProvider extends ServiceProvider
             return new QuickbooksClient($app['config']['quickbooks'], $token);
         });
 
+        $this->app->singleton(CallbackManager::class, fn() => new CallbackManager());
+
         $this->app->alias(QuickbooksClient::class, 'Quickbooks');
+        $this->app->alias(CallbackManager::class, 'CallbackManager');
     }
 
 

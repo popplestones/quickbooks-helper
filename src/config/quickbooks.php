@@ -1,5 +1,7 @@
 <?php
 
+use function PHPSTORM_META\map;
+
 return [
     'account' => [
         'model' => 'App\Models\Account',
@@ -43,20 +45,43 @@ return [
     ],
 
     'customer' => [
+        'model' => 'App\Models\Customer',
         'attributeMap' => [
-            'qb_customer_id' => 'qb_customer_id',
-            'fully_qualified_name' => 'name',
-            'email_address' => 'email',
-            'phone' => 'phone',
-            'display_name' => 'name',
-            'given_name' => 'client.firstName',
-            'family_name' => 'client.lastName',
-            'company_name' => 'businessName',
-            'address_line_1' => 'address',
-            'city' => 'city',
-            'suburb' => 'suburb',
-            'postcode' => 'postcode',
-            'country' => 'country',
+            'given_name' => 'given_name',
+            'family_name' => 'family_name',
+            'fully_qualified_name' => 'fully_qualified_name',
+            'company_name' => 'company_name',
+            'display_name' => 'display_name',
+            'print_on_check_name' => 'print_on_check_name',
+            'active' => 'active',
+            'taxable' => 'taxable',
+            'job' => 'job',
+            'bill_with_parent' => 'bill_with_parent',
+            'currency_ref' => 'currency_ref',
+            'preferred_delivery_method' => 'preferred_delivery_method',
+            'is_project' => 'is_project',
+            'primary_email_addr' => 'primary_email_addr',
+            'qb_customer_id' => 'qb_customer_id'
+        ],
+        'address' => [
+            'model' => 'App\Models\Address',
+            'attributeMap' => [
+                'line1' => 'line1',
+                'line2' => 'line2',
+                'line3' => 'line3',
+                'line4' => 'line4',
+                'line5' => 'line5',
+                'city' => 'city',
+                'country' => 'country',
+                'country_code' => 'country_code',
+                'country_sub_division_code' => 'state',
+                'postal_code' => 'postal_code',
+                'postal_code_suffix' => 'postal_code_suffix',
+                'lattitude' => 'lattitude',
+                'longitude' => 'longitude',
+                'tag' => 'tag',
+                'note' => 'note'
+            ]
         ]
     ],
 

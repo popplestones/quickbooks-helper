@@ -24,7 +24,8 @@
                 "Popplestones\\Quickbooks\\Providers\\QuickbooksHelperServiceProvider"
             ],
             "aliases": {
-                "Quickbooks": "Popplestones\\Quickbooks\\Facades\\QuickbooksFacade"
+                "Quickbooks": "Popplestones\\Quickbooks\\Facades\\QuickbooksFacade",
+                "CallbackManager": "Popplestones\\Quickbooks\\Facades\\CallbackManager"
             }
         }
     }
