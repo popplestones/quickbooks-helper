@@ -7,12 +7,13 @@ use Closure;
 trait QueriesAccounts
 {
 
-    private static Closure $accountQuery;
-    private static Closure $accountFilter;
-
+    private static ?Closure $accountQuery = null;
+    private static ?Closure $accountFilter = null;    
 
     public static function accounts()
     {
+        if (!static::$accountQuery) return null;
+
         return call_user_func(static::$accountQuery);
     }
 
@@ -27,6 +28,8 @@ trait QueriesAccounts
 
     public static function applyAccountsFilter($query)
     {
+        if (!static::$accountFilter) return null;
+        
         return call_user_func(static::$accountFilter, $query);
     }
 }

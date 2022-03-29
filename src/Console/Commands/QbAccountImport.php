@@ -3,8 +3,8 @@
 namespace Popplestones\Quickbooks\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Popplestones\Quickbooks\Services\QuickbooksHelper;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class QbAccountImport extends Command
 {
