@@ -40,35 +40,35 @@ class QbCustomerImport extends Command
             mapping: $mapping,
             idField: 'qb_customer_id',
             tableName: 'Customer',
-            callback: function($row) use ($modelName, $mapping, $addressModel, $addressMapping) {
+            callback: function ($row) use ($modelName, $mapping, $addressModel, $addressMapping) {
                 $customer = app($modelName)::updateOrCreate([$mapping['qb_customer_id'] => $row->Id], $this->setDataMapping($row, $mapping));
-                $addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', $addressMapping));
-                $addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'shipping'], $this->setAddressMapping($row, 'ShipAddr', $addressMapping));
+                $addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', "billing_", $mapping));
+                $addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'shipping'], $this->setAddressMapping($row, 'ShipAddr', "shipping_", $mapping));
             }
         );
-            
+
         return 0;
     }
 
-    protected function setAddressMapping($row, $type, $mapping)
+    protected function setAddressMapping($row, $type, $prefix, $mapping)
     {
         return [
-            $mapping['line1'] => $row->$type?->Line1,
-            $mapping['line2'] => $row->$type?->Line2,
-            $mapping['line3'] => $row->$type?->Line3,
-            $mapping['line4'] => $row->$type?->Line4,
-            $mapping['line5'] => $row->$type?->Line5,
-            $mapping['city'] => $row->$type?->City,
-            $mapping['country'] => $row->$type?->Country,
-            $mapping['country_code'] => $row->$type?->CountryCode,
-            $mapping['country'] => $row->$type?->Country,
-            $mapping['country_sub_division_code'] => $row->$type?->CountrySubDivisionCode,
-            $mapping['postal_code'] => $row->$type?->PostalCode,
-            $mapping['postal_code_suffix'] => $row->$type?->PostalCodeSuffix,
-            $mapping['lattitude'] => $row->$type?->Lat,
-            $mapping['longitude'] => $row->$type?->Long,
-            $mapping['tag'] => $row->$type?->Tag,
-            $mapping['note'] => $row->$type?->Note
+            $mapping["{$prefix}line1"] => $row->$type?->Line1,
+            $mapping["{$prefix}line2"] => $row->$type?->Line2,
+            $mapping["{$prefix}line3"] => $row->$type?->Line3,
+            $mapping["{$prefix}line4"] => $row->$type?->Line4,
+            $mapping["{$prefix}line5"] => $row->$type?->Line5,
+            $mapping["{$prefix}city"] => $row->$type?->City,
+            $mapping["{$prefix}country"] => $row->$type?->Country,
+            $mapping["{$prefix}country_code"] => $row->$type?->CountryCode,
+            $mapping["{$prefix}country"] => $row->$type?->Country,
+            $mapping["{$prefix}country_sub_division_code"] => $row->$type?->CountrySubDivisionCode,
+            $mapping["{$prefix}postal_code"] => $row->$type?->PostalCode,
+            $mapping["{$prefix}postal_code_suffix"] => $row->$type?->PostalCodeSuffix,
+            $mapping["{$prefix}lattitude"] => $row->$type?->Lat,
+            $mapping["{$prefix}longitude"] => $row->$type?->Long,
+            $mapping["{$prefix}tag"] => $row->$type?->Tag,
+            $mapping["{$prefix}note"] => $row->$type?->Note
         ];
     }
 
@@ -88,7 +88,8 @@ class QbCustomerImport extends Command
             $mapping['currency_ref'] => $row->CurrencyRef,
             $mapping['preferred_delivery_method'] => $row->PreferredDeliveryMethod,
             $mapping['is_project'] => $row->IsProject === 'true',
-            $mapping['primary_email_addr'] => $row->PrimaryEmailAddr
+            $mapping['primary_email_addr'] => $row->PrimaryEmailAddr?->Address,
+            $mapping['primary_phone'] => $row->PrimaryPhone?->FreeFormNumber
         ];
     }
 }

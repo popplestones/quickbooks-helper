@@ -10,7 +10,16 @@ use Popplestones\Quickbooks\Services\QuickbooksHelper;
 
 class QbAccountSync extends Command
 {
+    use SyncsWithQuickbooks;
+
     const MAX_FAILED = 3;
+
+    public $callbacks;
+    public $mapping;
+    public $qb_helper;
+    public $max_failed;
+    public $objMethod;
+    public $apiMethod;
     /**
      * The name and signature of the console command.
      *
@@ -25,6 +34,15 @@ class QbAccountSync extends Command
      */
     protected $description = 'Sync accounts with Quickbooks';
 
+    private function setup()
+    {
+        $this->mapping = config('quickbooks.account.attributeMap');
+        $this->qb_helper = new QuickbooksHelper();
+        $this->callbacks = CallbackManager::getCallbacks('accounts');
+        $this->max_failed = self::MAX_FAILED;
+        $this->objMethod = '';
+        $this->apiMethod = '';
+    }
     /**
      * Execute the console command.
      *
@@ -32,75 +50,42 @@ class QbAccountSync extends Command
      */
     public function handle()
     {
-        $accountMapping = config('quickbooks.account.attributeMap');
-        $qb_helper = new QuickbooksHelper();
+        $this->setup();
 
-        
-        $query = (CallbackManager::getCallbacks('accounts')->query)();
+        $query = ($this->callbacks->query)();
 
-        
+        $this->applyIdOption($query);
 
-        if (!$query)
-        {
-            $this->error("NOT CONFIGURED: You must define a closure for querying your accounts with QuickbooksHelper::setAccountsQuery");
-            return 1;
-        }
+        $query->limit($this->option('limit'));
 
-        if ($ids = $this->option('id'))
-            $query->whereIn($accountMapping['id'], $ids);
-        else {
-            app('CallbackManager')->filter('accounts', $query);
-            $query
-                ->where($accountMapping['sync_failed'], '<', self::MAX_FAILED)
-                ->limit($this->option('limit'));
-        }
-
-        
         $accounts = $query->get();
 
-        if ($accounts->count() == 0)
+        if ($accounts->count() === 0)
             $this->info('No accounts to sync');
 
 
-        $accounts->each(function($account) use ($accountMapping, $qb_helper) {
+        $accounts->each(function($account) {
             try
             {
-                $this->info("Account #{$account->{$accountMapping['id']}}...");
-                $account_params[] = $this->prepareData($account, $accountMapping);
-                $objMethod = 'create';
-                $apiMethod = 'Add';
+                $this->info("Account #{$account->{$this->mapping['id']}}...");
+                $account_params[] = $this->prepareData($account);
+                $this->objMethod = 'create';
+                $this->apiMethod = 'Add';
 
-                if ($account->{$accountMapping['qb_account_id']}) {
-                    $targetAccountArray = $qb_helper->find('Account', $account->{$accountMapping['qb_account_id']});
-                    if (!empty($targetAccountArray) && sizeof($targetAccountArray) === 1) {
-                        $theAccount = current($targetAccountArray);
-                        $objMethod = 'update';
-                        $apiMethod = 'Update';
-                        array_unshift($account_params, $theAccount);
-                    } else {
-                        if (!$this->option('force')) {
-                            $message = "Account Not Exists #{$account->{$accountMapping['qb_invoice_id']}} for account #{$account->{$accountMapping['id']}}";
-                            $this->info("Error: {$message}");
-                            Log::channel('quickbooks')->error($message);
-                            return true;
-                        }
-                        $account->$accountMapping['qb_account_id'] = null;
-                    }
-                }
-                $QBAccount = Account::$objMethod(...$account_params);
-                $result = $qb_helper->dsCall($apiMethod, $QBAccount);
+                $error = $this->getExistingRecord('Account', 'qb_account_id', $account, $account_params);
+                if ($error) return true;
+
+                $QBAccount = Account::{$this->objMethod}(...$account_params);
+                $result = $this->qb_helper->dsCall($this->apiMethod, $QBAccount);
 
                 if ($result) {
                     $this->info("Account Id #{$result->Id}");
-                    $account->{$accountMapping['qb_account_id']} = $result->Id;                    
+                    $account->{$this->mapping['qb_account_id']} = $result->Id;
                 }
                 $account->save();
             }
             catch (\Exception $e) {
-                $account->increment($accountMapping['sync_failed']);
-                $message = "{$e->getFile()}@{$e->getLine()} ==> {$e->getMessage()} for order #{$account->{$accountMapping['id']}}";
-                $this->info("Error: {$message}");                
-                Log::channel('quickbooks')->error($message);
+                $this->syncFailed($e, $account, $this->mapping);
                 return false;
             }
 
@@ -109,18 +94,18 @@ class QbAccountSync extends Command
         return 0;
     }
 
-    private function prepareData($account, $accountMapping)
+    private function prepareData($account)
     {
         return [
-            'Name' => data_get($account, $accountMapping['name']),
-            'Description' => data_get($account, $accountMapping['description']),
-            'SubAccount' => data_get($account, $accountMapping['sub_account']),
-            'FullyQualifiedName' => data_get($account, $accountMapping['fully_qualified_name']),
-            'Active' => data_get($account, $accountMapping['active']),
-            'Classification' => data_get($account, $accountMapping['classification']),
-            'AccountType' => data_get($account, $accountMapping['account_type']),
-            'AccountSubType' => data_get($account, $accountMapping['account_sub_type']),
-            'CurrencyRef' => data_get($account, $accountMapping['currency_ref'])
+            'Name' => data_get($account, $this->mapping['name']),
+            'Description' => data_get($account, $this->mapping['description']),
+            'SubAccount' => data_get($account, $this->mapping['sub_account']),
+            'FullyQualifiedName' => data_get($account, $this->mapping['fully_qualified_name']),
+            'Active' => data_get($account, $this->mapping['active']),
+            'Classification' => data_get($account, $this->mapping['classification']),
+            'AccountType' => data_get($account, $this->mapping['account_type']),
+            'AccountSubType' => data_get($account, $this->mapping['account_sub_type']),
+            'CurrencyRef' => data_get($account, $this->mapping['currency_ref'])
         ];
     }
 }

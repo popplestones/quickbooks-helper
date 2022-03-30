@@ -14,7 +14,7 @@ trait ImportsModels
         $noOfRows = 0;
 
         $qb_helper = new QuickbooksHelper();
-        
+
         $model = "";
 
         try
@@ -30,12 +30,11 @@ trait ImportsModels
         do
         {
             $rows = collect($qb_helper->dsCall('Query', "SELECT * FROM {$tableName} WHERE Active=true STARTPOSITION {$startPosition} MAXRESULTS {$maxResults}"));
-
             $rows->each($callback);
             $noOfRows = $rows->count();
 
             $this->info("Query from {$startPosition} & max {$maxResults}. No of rows: {$noOfRows}");
             $startPosition += $maxResults;
-        } while (!is_null($rows) && is_array($rows) && $noOfRows > $maxResults);            
+        } while (!is_null($rows) && is_array($rows) && $noOfRows > $maxResults);
     }
 }
