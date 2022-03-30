@@ -8,21 +8,21 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 
 class QbAccountImport extends Command
 {
-    use ImportsModels;
+    use ImportsFromQuickbooks;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
     protected $signature = 'qb:account:import';
-    
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Import accounts from Quickbooks';
-    
+
     /**
      * Execute the console command.
      *
@@ -32,7 +32,7 @@ class QbAccountImport extends Command
     {
         $modelName = config('quickbooks.account.model');
         $mapping = config('quickbooks.account.attributeMap');
-        
+
         $this->importModels(
             modelName: $modelName,
             mapping: $mapping,
@@ -41,10 +41,10 @@ class QbAccountImport extends Command
             callback: fn($row) =>
                 app($modelName)::updateOrCreate([$mapping['qb_account_id'] => $row->Id], $this->setDataMapping($row, $mapping))
             );
-            
+
             return 0;
     }
-    
+
     protected function setDataMapping($row, $mapping)
     {
         return [

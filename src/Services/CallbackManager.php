@@ -12,13 +12,15 @@ use stdClass;
 /**
  * @method void registerCustomers(Closure $query, Closure $filter)
  * @method void registerAccounts(Closure $query, Closure $filter)
+ * @method void registerItems(Closure $query, Closure $filter)
  */
 class CallbackManager
 {
     // Allowed virtual methods.
     private $functions = [
         'customers',
-        'accounts'
+        'accounts',
+        'items'
     ];
 
     public function __construct()
@@ -51,7 +53,7 @@ class CallbackManager
     public function getCallbacks(string $type): stdClass
     {
         if(!$this->callbacks->has($type))
-        {            
+        {
             throw new InvalidArgumentException(
                 'Required callback must be registered: '. (string)str($type)->title()->prepend('register')
             );

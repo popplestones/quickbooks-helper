@@ -75,6 +75,8 @@ class QbAccountSync extends Command
                 $error = $this->getExistingRecord('Account', 'qb_account_id', $account, $account_params);
                 if ($error) return true;
 
+                $this->info(json_encode($account_params));
+
                 $QBAccount = Account::{$this->objMethod}(...$account_params);
                 $result = $this->qb_helper->dsCall($this->apiMethod, $QBAccount);
 
@@ -85,7 +87,7 @@ class QbAccountSync extends Command
                 $account->save();
             }
             catch (\Exception $e) {
-                $this->syncFailed($e, $account, $this->mapping);
+                $this->syncFailed($e, $account, 'account');
                 return false;
             }
 
@@ -99,9 +101,9 @@ class QbAccountSync extends Command
         return [
             'Name' => data_get($account, $this->mapping['name']),
             'Description' => data_get($account, $this->mapping['description']),
-            'SubAccount' => data_get($account, $this->mapping['sub_account']),
+            'SubAccount' => data_get($account, $this->mapping['sub_account'])? 'true': 'false',
             'FullyQualifiedName' => data_get($account, $this->mapping['fully_qualified_name']),
-            'Active' => data_get($account, $this->mapping['active']),
+            'Active' => data_get($account, $this->mapping['active'])? 'true' : 'false',
             'Classification' => data_get($account, $this->mapping['classification']),
             'AccountType' => data_get($account, $this->mapping['account_type']),
             'AccountSubType' => data_get($account, $this->mapping['account_sub_type']),

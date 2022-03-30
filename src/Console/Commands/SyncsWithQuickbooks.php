@@ -7,6 +7,13 @@ trait SyncsWithQuickbooks
 {
     private function syncFailed($e, $model, $modelName)
     {
+        $this->info('Exception:');
+        $this->error(json_encode($e));
+        $this->info('Model:');
+        $this->error(json_encode($model));
+        $this->info('ModelName: ');
+        $this->error(json_encode($modelName));
+
         $model->increment($this->mapping['sync_failed']);
         $message = "{$e->getFile()}@{$e->getLine()} ==> {$e->getMessage()} for {$modelName} #{$model->{$this->mapping['id']}}";
         $this->info("Error: {$message}");

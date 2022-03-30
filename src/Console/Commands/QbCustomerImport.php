@@ -8,7 +8,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 
 class QbCustomerImport extends Command
 {
-    use ImportsModels;
+    use ImportsFromQuickbooks;
     /**
      * The name and signature of the console command.
      *

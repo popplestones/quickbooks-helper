@@ -39,8 +39,30 @@ return [
         ],
     ],
     'item' => [
+        'model' => 'App\Models\Product',
         'attributeMap' => [
-
+            'id' => 'id',
+            'qb_id' => 'qb_product_id',
+            'name' => 'name',
+            'description' => 'description',
+            'active' => 'active',
+            'sub_item' => 'sub_item',
+            'parent_ref' => 'parent_ref',
+            'level' => 'level',
+            'fully_qualified_name' => 'fully_qualified_name',
+            'taxable' => 'taxable',
+            'sales_tax_included' => 'sales_tax_included',
+            'unit_price' => 'unit_price',
+            'type' => 'type',
+            'income_account_ref' => 'income_account_ref',
+            'purchase_tax_included' => 'purchase_tax_included',
+            'purchase_cost' => 'purchase_cost',
+            'expense_account_ref' => 'expense_account_ref',
+            'track_qty_on_hand' => 'track_qty_on_hand',
+            'qty_on_hand' => 'qty_on_hand',
+            'sales_tax_code_ref' => 'sales_tax_code_ref',
+            'purchase_tax_code_ref' => 'purchase_tax_code_ref',
+            'sync_failed' => 'sync_failed'
         ]
     ],
 

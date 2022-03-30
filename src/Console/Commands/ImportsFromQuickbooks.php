@@ -5,7 +5,7 @@ namespace Popplestones\Quickbooks\Console\Commands;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Popplestones\Quickbooks\Services\QuickbooksHelper;
 
-trait ImportsModels
+trait ImportsFromQuickbooks
 {
     protected function importModels($modelName, $mapping, $idField, $tableName, $callback)
     {
@@ -30,6 +30,7 @@ trait ImportsModels
         do
         {
             $rows = collect($qb_helper->dsCall('Query', "SELECT * FROM {$tableName} WHERE Active=true STARTPOSITION {$startPosition} MAXRESULTS {$maxResults}"));
+            $this->info(json_encode($rows));
             $rows->each($callback);
             $noOfRows = $rows->count();
 

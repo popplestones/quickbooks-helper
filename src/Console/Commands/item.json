@@ -1,0 +1,23 @@
+[
+  {
+    "Name": "eum",
+    "Description": "description",
+    "Active": "true",
+    "SubItem": "false",
+    "ParentRef": null,
+    "Level": null,
+    "FullyQualifiedName": "required?",
+    "Taxable": "true",
+    "SalesTaxIncluded": "false",
+    "UnitPrice": null,
+    "Type": "Service",
+    "IncomeAccountRef": null,
+    "PurchaseTaxIncluded": "false",
+    "PurchaseCost": null,
+    "ExpenseAccountRef": null,
+    "TrackQtyOnHand": "false",
+    "QtyOnHand": null,
+    "SalesTaxCodeRef": null,
+    "PurchaseTaxCodeRef": null
+  }
+]
