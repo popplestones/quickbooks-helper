@@ -1,10 +1,21 @@
 <?php
 namespace Popplestones\Quickbooks\Console\Commands;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
+use Popplestones\Quickbooks\Services\QuickbooksHelper;
 
 trait SyncsWithQuickbooks
 {
+    private function checkConnection()
+    {
+        if (!$this->qb_helper->dataService)
+        {
+            $this->error("Connect a user to quickbooks online first");
+            return false;
+        }
+        return true;
+    }
     private function syncFailed($e, $model, $modelName)
     {
         $this->info('Exception:');
@@ -58,5 +69,37 @@ trait SyncsWithQuickbooks
     private function applySyncFailedFilter($query)
     {
         $query->where($this->mapping['sync_failed'], '<', $this->max_failed);
+    }
+
+    private function importModels($modelName, $mapping, $idField, $tableName, $callback)
+    {
+        $startPosition = 1;
+        $maxResults = 100;
+        $noOfRows = 0;
+        
+        $qb_helper = new QuickbooksHelper();
+
+        $model = "";
+
+        try
+        {
+            $model = app($modelName);
+
+        } catch (BindingResolutionException $ex)
+        {
+            $this->error("Invalid model '{$modelName}'. Setup the model in the quickbooks.php config file.");
+            return 1;
+        }
+
+        do
+        {
+            $rows = collect($qb_helper->dsCall('Query', "SELECT * FROM {$tableName} WHERE Active=true STARTPOSITION {$startPosition} MAXRESULTS {$maxResults}"));
+            
+            $rows->each($callback);
+            $noOfRows = $rows->count();
+
+            $this->info("Query from {$startPosition} & max {$maxResults}. No of rows: {$noOfRows}");
+            $startPosition += $maxResults;
+        } while (!is_null($rows) && is_array($rows) && $noOfRows > $maxResults);
     }
 }

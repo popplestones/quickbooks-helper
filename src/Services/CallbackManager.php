@@ -34,7 +34,7 @@ class CallbackManager
 
         //Allow virtual public methods to be called.
         if (!in_array($type, $this->functions)) {
-            throw new BadMethodCallException();
+            throw new BadMethodCallException("Invalid method: {$method}");
         }
 
         $this->callVirtualMethod($type, $args);

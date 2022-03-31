@@ -52,11 +52,7 @@ class QbCustomerSync extends Command
     public function handle()
     {
         $this->setup();
-        if (!$this->qb_helper->dataService)
-        {
-            $this->error("Connect a user to quickbooks online first");
-            return 1;
-        }
+        if (!$this->checkConnection()) return 1;
 
         $query = ($this->callbacks->query)();
         $this->applyIdOption($query);
@@ -81,7 +77,7 @@ class QbCustomerSync extends Command
                 $result = $this->qb_helper->dsCall($this->apiMethod, $qbCustomer);
 
                 if ($result) {
-                    $this->info("Quickbooks ID #{$result->Id}");
+                    $this->info("Success! Quickbooks Customer ID #{$result->Id}");
                     $customer->{$this->mapping['qb_customer_id']} = $result->Id;
                 }
                 else {
@@ -102,7 +98,7 @@ class QbCustomerSync extends Command
 
     private function prepareData($customer)
     {
-        return [
+        return array_filter([
             'FullyQualifiedName' => data_get($customer, $this->mapping['fully_qualified_name']),
             'PrimaryEmailAddr' => [
                 'Address' => data_get($customer, $this->mapping['primary_email_addr']),
@@ -158,6 +154,8 @@ class QbCustomerSync extends Command
                 'Tag' => data_get($customer, $this->mapping['billing_tag']),
                 'Note' => data_get($customer, $this->mapping['billing_note']),
             ],
-        ];
+        ], function ($val) {
+            return ! is_null($val);
+        });
     }
 }

@@ -3,10 +3,11 @@
 namespace Popplestones\Quickbooks\Console\Commands;
 
 use Illuminate\Console\Command;
+use Popplestones\Quickbooks\Services\QuickbooksHelper;
 
 class QbItemImport extends Command
 {
-    use ImportsFromQuickbooks;
+    use SyncsWithQuickbooks;
     /**
      * The name and signature of the console command.
      *
@@ -21,6 +22,16 @@ class QbItemImport extends Command
      */
     protected $description = 'Import items from Quickbooks';
 
+    public $modelName;
+    public $mapping;
+    public $qb_helper;
+
+    private function setup()
+    {
+        $this->modelName = config('quickbooks.item.model');
+        $this->mapping = config('quickbooks.item.attributeMap');
+        $this->qb_helper = new QuickbooksHelper();
+    }
     /**
      * Execute the console command.
      *
@@ -28,16 +39,16 @@ class QbItemImport extends Command
      */
     public function handle()
     {
-        $modelName = config('quickbooks.item.model');
-        $mapping = config('quickbooks.item.attributeMap');
+        $this->setup();
+        if (!$this->checkConnection()) return 1;
 
         $this->importModels(
-            modelName: $modelName,
-            mapping: $mapping,
+            modelName: $this->modelName,
+            mapping: $this->mapping,
             idField: 'qb_id',
             tableName: 'Item',
             callback: fn($row) =>
-                app($modelName)::updateOrCreate([$mapping['qb_id'] => $row->Id], $this->setDataMapping($row, $mapping))
+                app($this->modelName)::updateOrCreate([$this->mapping['qb_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
             );
 
         return 0;

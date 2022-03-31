@@ -124,7 +124,15 @@ return [
             'model' => 'App\Models\Address',
         ]
     ],
+    'paymentMethod' => [
+        'model' => 'App\Models\PaymentMethod',
+        'attributeMap' => [
+            'name' => 'name',
+            'active' => 'active',
+            'type' => 'type'
+        ]
 
+    ],
     'data_service' => [
         'auth_mode' => 'oauth2',
         'base_url' => env('QUICKBOOKS_API_URL', config('app.env') === 'production' ? 'Production' : 'Development'),

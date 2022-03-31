@@ -4,11 +4,10 @@ namespace Popplestones\Quickbooks\Console\Commands;
 
 use Illuminate\Console\Command;
 use Popplestones\Quickbooks\Services\QuickbooksHelper;
-use Illuminate\Contracts\Container\BindingResolutionException;
 
 class QbCustomerImport extends Command
 {
-    use ImportsFromQuickbooks;
+    use SyncsWithQuickbooks;
     /**
      * The name and signature of the console command.
      *
@@ -23,6 +22,18 @@ class QbCustomerImport extends Command
      */
     protected $description = 'Import customers from Quickbooks';
 
+    public $modelName;
+    public $mapping;
+    public $addressModel;
+    public $qb_helper;
+
+    private function setup()
+    {
+        $this->modelName = config('quickbooks.customer.model');
+        $this->mapping = config('quickbooks.customer.attributeMap');
+        $this->addressModel = config('quickbooks.customer.address.model');
+        $this->qb_helper = new QuickbooksHelper();
+    }
     /**
      * Execute the console command.
      *
@@ -30,20 +41,18 @@ class QbCustomerImport extends Command
      */
     public function handle()
     {
-        $modelName = config('quickbooks.customer.model');
-        $mapping = config('quickbooks.customer.attributeMap');
-        $addressModel = config('quickbooks.customer.address.model');
-        $addressMapping = config('quickbooks.customer.address.attributeMap');
+        $this->setup();
+        if (!$this->checkConnection()) return 1;
 
         $this->importModels(
-            modelName: $modelName,
-            mapping: $mapping,
+            modelName: $this->modelName,
+            mapping: $this->mapping,
             idField: 'qb_customer_id',
             tableName: 'Customer',
-            callback: function ($row) use ($modelName, $mapping, $addressModel, $addressMapping) {
-                $customer = app($modelName)::updateOrCreate([$mapping['qb_customer_id'] => $row->Id], $this->setDataMapping($row, $mapping));
-                $addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', "billing_", $mapping));
-                $addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'shipping'], $this->setAddressMapping($row, 'ShipAddr', "shipping_", $mapping));
+            callback: function ($row) {
+                $customer = app($this->modelName)::updateOrCreate([$this->mapping['qb_customer_id'] => $row->Id], $this->setDataMapping($row, $this->mapping));
+                $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', "billing_", $this->mapping));
+                $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'shipping'], $this->setAddressMapping($row, 'ShipAddr', "shipping_", $this->mapping));
             }
         );
 

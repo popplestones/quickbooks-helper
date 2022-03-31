@@ -51,6 +51,7 @@ class QbAccountSync extends Command
     public function handle()
     {
         $this->setup();
+        if (!$this->checkConnection()) return 1;
 
         $query = ($this->callbacks->query)();
 
@@ -73,24 +74,24 @@ class QbAccountSync extends Command
                 $this->apiMethod = 'Add';
 
                 $error = $this->getExistingRecord('Account', 'qb_account_id', $account, $account_params);
-                if ($error) return true;
-
-                $this->info(json_encode($account_params));
+                if ($error) return true;                
 
                 $QBAccount = Account::{$this->objMethod}(...$account_params);
                 $result = $this->qb_helper->dsCall($this->apiMethod, $QBAccount);
 
                 if ($result) {
-                    $this->info("Account Id #{$result->Id}");
+                    $this->info("Success! Quickbooks Account Id #{$result->Id}");
                     $account->{$this->mapping['qb_account_id']} = $result->Id;
+                } else {
+                    $this->warn('Adding account failed!');
+                    $error = $this->qb_helper->dataService->getLastError();
+                    $this->warn($error->getResponseBody());
                 }
                 $account->save();
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $this->syncFailed($e, $account, 'account');
                 return false;
             }
-
         });
 
         return 0;
@@ -98,7 +99,7 @@ class QbAccountSync extends Command
 
     private function prepareData($account)
     {
-        return [
+        return array_filter([
             'Name' => data_get($account, $this->mapping['name']),
             'Description' => data_get($account, $this->mapping['description']),
             'SubAccount' => data_get($account, $this->mapping['sub_account'])? 'true': 'false',
@@ -108,6 +109,8 @@ class QbAccountSync extends Command
             'AccountType' => data_get($account, $this->mapping['account_type']),
             'AccountSubType' => data_get($account, $this->mapping['account_sub_type']),
             'CurrencyRef' => data_get($account, $this->mapping['currency_ref'])
-        ];
+        ], function ($val) {
+            return ! is_null($val);
+        });
     }
 }

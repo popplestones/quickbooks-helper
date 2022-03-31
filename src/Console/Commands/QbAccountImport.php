@@ -4,11 +4,10 @@ namespace Popplestones\Quickbooks\Console\Commands;
 
 use Illuminate\Console\Command;
 use Popplestones\Quickbooks\Services\QuickbooksHelper;
-use Illuminate\Contracts\Container\BindingResolutionException;
 
 class QbAccountImport extends Command
 {
-    use ImportsFromQuickbooks;
+    use SyncsWithQuickbooks;
     /**
      * The name and signature of the console command.
      *
@@ -23,6 +22,16 @@ class QbAccountImport extends Command
      */
     protected $description = 'Import accounts from Quickbooks';
 
+    public $modelName;
+    public $mapping;
+    public $qb_helper;
+
+    private function setup()
+    {
+        $this->modelName = config('quickbooks.account.model');
+        $this->mapping = config('quickbooks.account.attributeMap');
+        $this->qb_helper = new QuickbooksHelper();
+    }
     /**
      * Execute the console command.
      *
@@ -30,16 +39,16 @@ class QbAccountImport extends Command
      */
     public function handle()
     {
-        $modelName = config('quickbooks.account.model');
-        $mapping = config('quickbooks.account.attributeMap');
+        $this->setup();
+        if (!$this->checkConnection()) return 1;
 
         $this->importModels(
-            modelName: $modelName,
-            mapping: $mapping,
+            modelName: $this->modelName,
+            mapping: $this->mapping,
             idField: 'qb_account_id',
             tableName: 'Account',
             callback: fn($row) =>
-                app($modelName)::updateOrCreate([$mapping['qb_account_id'] => $row->Id], $this->setDataMapping($row, $mapping))
+                app($this->modelName)::updateOrCreate([$this->mapping['qb_account_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
             );
 
             return 0;
@@ -47,8 +56,7 @@ class QbAccountImport extends Command
 
     protected function setDataMapping($row, $mapping)
     {
-        return [
-            $mapping['id'] => $row->Id,
+        return [            
             $mapping['name'] => $row->Name,
             $mapping['description'] => $row->Description,
             $mapping['sub_account'] => $row->SubAccount === 'true',
