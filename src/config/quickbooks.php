@@ -65,7 +65,6 @@ return [
             'sync_failed' => 'sync_failed'
         ]
     ],
-
     'customer' => [
         'model' => 'App\Models\Customer',
         'attributeMap' => [
@@ -129,9 +128,35 @@ return [
         'attributeMap' => [
             'name' => 'name',
             'active' => 'active',
-            'type' => 'type'
+            'type' => 'type',
+            'qb_payment_method_id' => 'qb_payment_method_id'
         ]
-
+    ],
+    'taxCode' => [
+        'model' => 'App\Models\TaxRate',
+        'attributeMap' => [
+            'name' => 'name',
+            'description' => 'description',
+            'taxable' => 'taxable',
+            'active' => 'active',
+            'hidden' => 'hidden',
+            'tax_group' => 'tax_group',
+            'qb_tax_code_id' => 'qb_tax_code_id'
+        ]
+    ],
+    'payment' => [
+        'model' => 'App\Models\Payment',
+        'attributeMap' => [
+            'transaction_date' => 'transaction_date',
+            'currency_ref' => 'currency_ref',
+            'exchange_rate' => 'exchange_rate',
+            'total_amount' => 'total_amount',
+            'customer_ref' => 'customer_ref',
+            'deposit_account' => 'deposit_account',
+            'payment_method' => 'payment_method',
+            'private_note' =>  'private_note',
+            'qb_payment_id' => 'qb_payment_id'
+        ]
     ],
     'data_service' => [
         'auth_mode' => 'oauth2',

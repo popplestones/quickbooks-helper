@@ -42,6 +42,23 @@ class QbPaymentMethodImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
+        $this->info("Import payment methods...");
+        $this->importModels(
+            modelName: $this->modelName,
+            tableName: 'PaymentMethod',
+            callback: fn($row) =>
+                app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_method_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
+            );
+
         return 0;
+    }
+
+    public function setDataMapping($row, $mapping)
+    {
+        return [
+            $mapping['name'] => $row->Name,
+            $mapping['active'] => $row->Active === 'true',
+            $mapping['type'] => $row->Type,
+        ];
     }
 }

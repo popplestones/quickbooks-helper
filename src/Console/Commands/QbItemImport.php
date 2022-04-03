@@ -44,8 +44,6 @@ class QbItemImport extends Command
 
         $this->importModels(
             modelName: $this->modelName,
-            mapping: $this->mapping,
-            idField: 'qb_id',
             tableName: 'Item',
             callback: fn($row) =>
                 app($this->modelName)::updateOrCreate([$this->mapping['qb_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))

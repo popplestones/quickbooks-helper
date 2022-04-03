@@ -44,8 +44,6 @@ class QbAccountImport extends Command
 
         $this->importModels(
             modelName: $this->modelName,
-            mapping: $this->mapping,
-            idField: 'qb_account_id',
             tableName: 'Account',
             callback: fn($row) =>
                 app($this->modelName)::updateOrCreate([$this->mapping['qb_account_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
@@ -56,7 +54,7 @@ class QbAccountImport extends Command
 
     protected function setDataMapping($row, $mapping)
     {
-        return [            
+        return [
             $mapping['name'] => $row->Name,
             $mapping['description'] => $row->Description,
             $mapping['sub_account'] => $row->SubAccount === 'true',

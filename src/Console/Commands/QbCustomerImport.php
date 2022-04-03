@@ -46,8 +46,6 @@ class QbCustomerImport extends Command
 
         $this->importModels(
             modelName: $this->modelName,
-            mapping: $this->mapping,
-            idField: 'qb_customer_id',
             tableName: 'Customer',
             callback: function ($row) {
                 $customer = app($this->modelName)::updateOrCreate([$this->mapping['qb_customer_id'] => $row->Id], $this->setDataMapping($row, $this->mapping));

@@ -20,7 +20,7 @@ class CallbackManager
     private $functions = [
         'customers',
         'accounts',
-        'items'
+        'items',
     ];
 
     public function __construct()
