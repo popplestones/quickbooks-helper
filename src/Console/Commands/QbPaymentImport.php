@@ -3,7 +3,10 @@
 namespace Popplestones\Quickbooks\Console\Commands;
 
 use App\Models\Account;
+use App\Models\Customer;
+use App\Models\PaymentMethod;
 use Illuminate\Console\Command;
+use oasis\names\specification\ubl\schema\xsd\CommonAggregateComponents_2\PaymentMeans;
 use Popplestones\Quickbooks\Services\QuickbooksHelper;
 
 class QbPaymentImport extends Command
@@ -45,25 +48,46 @@ class QbPaymentImport extends Command
         if (!$this->checkConnection()) return 1;
 
         $this->info("Import payments...");
-        $this->info("ModelName: {$this->modelName}");
-        // $this->importModels(
-        //     modelName: $this->modelName,
-        //     tableName: 'Payment',
-        //     callback: fn($row) =>
-        //         app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
-        //     );
+    
+        $this->importModels(
+            modelName: $this->modelName,
+            tableName: 'Payment',
+            callback: function($row) {
+                $account = Account::where(config('quickbooks.account.attributeMap.qb_account_id'), $row->DepositToAccountRef)->first();
+                $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
+                $paymentMethod = PaymentMethod::where(config('quickbooks.paymentMethod.attributeMap.qb_payment_method_id'), $row->PaymentMethodRef)->first();
+
+                if (!$account) {
+                    $this->warn("Skipping payment, account #{$row->DepositToAccountRef} doesn't exist, try importing accounts with qb:account:import");
+                    return;
+                }
+
+                if (!$customer) {
+                    $this->warn("Skipping payment, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
+                    return;
+                }
+
+                if (!$paymentMethod) {
+                    $this->warn("Skipping payment, payment method #{$row->PaymentMethodRef} doesn't exist, try importing payment methods with qb:payment-method:import");
+                    return;
+                }
+
+                app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_id'] => $row->Id], $this->setDataMapping($row, $this->mapping, $account, $customer));
+            },
+            activeFilter: false
+            );
 
         return 0;
     }
-    public function setDataMapping($row, $mapping)
+    public function setDataMapping($row, $mapping, $account, $customer)
     {
         return [
             $mapping['transaction_date'] => $row->TxnDate,
             $mapping['currency_ref'] => $row->CurrencyRef,
             $mapping['exchange_rate'] => $row->ExchangeRate,
             $mapping['total_amount'] => $row->TotalAmt,
-            $mapping['customer_ref'] => $row->CustomerRef,
-            $mapping['deposit_account'] => Account::find(intval($row->DepositToAccountRef))?->$mapping['qb_account_id'],
+            $mapping['customer_ref'] => $customer->id,
+            $mapping['deposit_account'] => $account->id,
             $mapping['payment_method'] => $row->PaymentMethodRef,
             $mapping['private_note'] => $row->PrivateNote
         ];

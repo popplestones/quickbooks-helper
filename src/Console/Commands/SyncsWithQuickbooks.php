@@ -71,7 +71,7 @@ trait SyncsWithQuickbooks
         $query->where($this->mapping['sync_failed'], '<', $this->max_failed);
     }
 
-    private function importModels($modelName, $tableName, $callback)
+    private function importModels($modelName, $tableName, $callback, $activeFilter = true)
     {
         $startPosition = 1;
         $maxResults = 100;
@@ -93,7 +93,8 @@ trait SyncsWithQuickbooks
 
         do
         {
-            $rows = collect($qb_helper->dsCall('Query', "SELECT * FROM {$tableName} WHERE Active=true STARTPOSITION {$startPosition} MAXRESULTS {$maxResults}"));
+            $additionalOption = $activeFilter ? "WHERE Active=true" : "";
+            $rows = collect($qb_helper->dsCall('Query', "SELECT * FROM {$tableName} {$additionalOption} STARTPOSITION {$startPosition} MAXRESULTS {$maxResults}"));
             $this->info("Running Callback for each row");
             $rows->each($callback);
             $noOfRows = $rows->count();

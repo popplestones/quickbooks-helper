@@ -14,7 +14,9 @@ use Popplestones\Quickbooks\Console\Commands\QbInvoiceSync;
 use Popplestones\Quickbooks\Console\Commands\QbInvoiceVoid;
 use Popplestones\Quickbooks\Console\Commands\QbItemImport;
 use Popplestones\Quickbooks\Console\Commands\QbItemSync;
+use Popplestones\Quickbooks\Console\Commands\QbPaymentImport;
 use Popplestones\Quickbooks\Console\Commands\QbPaymentMethodImport;
+use Popplestones\Quickbooks\Console\Commands\QbPaymentSync;
 use Popplestones\Quickbooks\Console\Commands\QbTaxCodeImport;
 use Popplestones\Quickbooks\Facades\CallbackManager;
 use Popplestones\Quickbooks\Services\QuickbooksClient;
@@ -41,13 +43,13 @@ class QuickbooksHelperServiceProvider extends ServiceProvider
     }
 
     private function registerFacades(): self
-    {   
+    {
         $this->app->bind(CallbackManager::class, CallbackManager::class);
 
          return $this;
     }
 
-    
+
     private function registerCommands(): self
     {
         if ($this->app->runningInConsole()) {
@@ -62,6 +64,8 @@ class QuickbooksHelperServiceProvider extends ServiceProvider
                 QbItemImport::class,
                 QbItemSync::class,
                 QbPaymentMethodImport::class,
+                QbPaymentImport::class,
+                QbPaymentSync::class,
                 QbTaxCodeImport::class
             ]);
         }
@@ -83,7 +87,7 @@ class QuickbooksHelperServiceProvider extends ServiceProvider
 
         return $this;
     }
-    
+
     private function registerRoutes(): self
     {
         $config = $this->app->config->get('quickbooks.route');

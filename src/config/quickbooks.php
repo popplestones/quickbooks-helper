@@ -147,15 +147,21 @@ return [
     'payment' => [
         'model' => 'App\Models\Payment',
         'attributeMap' => [
+            'id' => 'id',
             'transaction_date' => 'transaction_date',
             'currency_ref' => 'currency_ref',
             'exchange_rate' => 'exchange_rate',
             'total_amount' => 'total_amount',
-            'customer_ref' => 'customer_ref',
-            'deposit_account' => 'deposit_account',
-            'payment_method' => 'payment_method',
+            'customer_ref' => 'customer_id',
+            'deposit_account' => 'account_id',
+            'payment_method' => 'payment_method_id',
             'private_note' =>  'private_note',
-            'qb_payment_id' => 'qb_payment_id'
+            'qb_payment_id' => 'qb_payment_id',
+            'sync_failed' => 'sync_failed',
+            'account_type' => 'account.account_type',
+            'account_id' => 'account.qb_account_id',
+            'customer_id' => 'customer.qb_customer_id',
+            'payment_method_id' => 'paymentMethod.qb_payment_method_id'
         ]
     ],
     'data_service' => [
