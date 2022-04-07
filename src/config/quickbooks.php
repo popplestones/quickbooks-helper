@@ -21,6 +21,8 @@ return [
         ]
     ],
     'invoice' => [
+        'model' => 'App\Models\Invoice',
+        'lineRelationship' => 'invoice_lines',
         'settings' => [
             'austax' => '',
             'overseastax' => '',
@@ -30,13 +32,23 @@ return [
             'shipitem' => ''
         ],
         'attributeMap' => [
-            'customer' => 'user',
-            'billing_country' => 'billing_country',
-            'qb_invoice_id' => 'qb_invoice_id',
-            'qb_payment_id' => 'qb_payment_id',
-            'qb_creditmemo_id' => 'qb_creditmemo_id',
-            'sync' => 'sync'
+            'currency_ref' => 'currency_ref',
+            'exchange_rate' => 'exchange_rate',
+            'bill_email' => 'bill_email',
+            'transaction_date' => 'transaction_date',
+            'ship_date' => 'ship_date',
+            'tracking_num' => 'tracking_num',
+            'due_date' => 'due_date',
+            'private_note' => 'private_note',
+            'customer_memo' => 'customer_memo',
+            'ship_method' => 'ship_method',
+            'apply_tax_after_discount' => 'apply_tax_after_discount',
+            'total_amount' => 'total_amount',
+            'qb_invoice_id' => 'qb_invoice_id'
         ],
+    ],
+    'invoiceLine' => [
+        'model' => 'App\Models\InvoiceLine',
     ],
     'item' => [
         'model' => 'App\Models\Product',

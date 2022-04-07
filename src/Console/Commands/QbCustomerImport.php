@@ -44,6 +44,7 @@ class QbCustomerImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
+        $this->info("Importing customers to {$this->modelName}");
         $this->importModels(
             modelName: $this->modelName,
             tableName: 'Customer',

@@ -24,12 +24,16 @@ class QbInvoiceImport extends Command
     protected $description = 'Import invoices from Quickbooks';
 
     public $modelName;
+    public $invoiceLineModel;
+    public $lineMapping;
     public $mapping;
     public $qb_helper;
 
     private function setup()
     {
         $this->modelName = config('quickbooks.invoice.model');
+        $this->invoiceLineModel = config('quickbooks.invoiceLine.model');
+        $this->invoiceLineMapping = config('quickbooks.invoiceLine.attributeMap');
         $this->mapping = config('quickbooks.invoice.attributeMap');
         $this->qb_helper = new QuickbooksHelper();
     }
@@ -44,81 +48,61 @@ class QbInvoiceImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Import invoices...");
+        $this->info("Importing invoices to {$this->modelName}");
         $this->importModels(
             modelName:$this->modelName,
             tableName: 'Invoice',
             callback: function($row) {
+                $this->info("Executing import callback.");
                 $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
 
                 if (!$customer) {
                     $this->warn("Skipping invoice, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
                     return;
                 }
-                app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_id'] => $row->Id], $this->setDataMapping($row, $this->mapping, $customer));
-        });
+
+                $this->info(json_encode($this->setDataMapping($row, $this->mapping, $customer)));
+
+                $this->warn("Creating invoice:");
+                $this->warn(json_encode($this->setDataMapping($row, $this->mapping)));
+                $invoice = app($this->modelName)::updateOrCreate([$this->mapping['qb_invoice_id'] => $row->Id], $this->setDataMapping($row, $this->mapping));                $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', "billing_", $this->mapping));
+
+                $this->warn("Clearing existing invoice lines");
+                $invoice->{config('quickbooks.invoice.lineRelationship')}()->delete();
+
+                collect($row->Line)->each(function($line) use ($invoice) {
+                    $this->warn("Creating invoice line:");
+                    $this->warn(json_encode($this->setLineMapping($line, $this->lineMapping)));
+                    $this->invoiceLineModel::create($this->setLineMapping($line, $this->lineMapping, $invoice));
+                });
+            },
+            activeFilter: false
+        );
 
         return 0;
     }
 
-    private function setDataMapping($row, $mapping, $customer)
+    private function setLineMapping($line, $mapping, $invoice)
     {
-        $lines = [];
-
         return [
-            'Line' => $lines,
-            'BillAddr' => [
-                'Line1' => '',
-                'Line2' => '',
-                'Line3' => '',
-                'Line4' => '',
-                'Line5' => '',
-                'City' => '',
-                'CountrySubDivisionCode' => '',
-                'PostalCode' => '',
-                'Lat' => '',
-                'Long' => '',
-            ],
-            'ShipAddr' => [
-                'Line1' => '',
-                'Line2' => '',
-                'Line3' => '',
-                'Line4' => '',
-                'Line5' => '',
-                'City' => '',
-                'CountrySubDivisionCode' => '',
-                'PostalCode' => '',
-                'Lat' => '',
-                'Long' => '',
-            ],
-            'TxnDate' => '',
-            'TotalAmt' => '',
-            'CustomerRef' => [
-                'value' => ''
-            ],
-            'DueDate' => '',
-            'TxnTaxDetail' => [
-                'TotalTax' => ''
-            ],
-            'ShipDate' => '',
-            'ShipFromAddr' => [
-                'Line1' => '',
-                'Line2' => '',
-                'Line3' => '',
-                'Line4' => '',
-                'Line5' => '',
-                'City' => '',
-                'CountrySubDivisionCode' => '',
-                'PostalCode' => '',
-                'Lat' => '',
-                'Long' => '',
-            ],
-            'TrackingNum' => '',
-            'GlobalTaxCalculation' => '',
-            'PrivateNote' => '',
-            'CustomerMemo' => [
-                'value' => ''
-            ]
+            
+        ];
+    }
+    private function setDataMapping($row, $mapping)
+    {
+        return [
+            $mapping['transaction_date'] => $row->TxnDate,
+            $mapping['currency_ref'] => $row->CurrencyRef,
+            $mapping['exchange_rate'] => $row->ExchangeRate,
+            $mapping['bill_email'] => $row->BillEmail,
+            $mapping['ship_date'] => $row->ShipDate,
+            $mapping['tracking_num'] => $row->TrackingNum,
+            $mapping['due_date'] => $row->DueDate,
+            $mapping['private_note'] => $row->PrivateNote,
+            $mapping['customer_memo'] => $row->CustomerMemo,
+            $mapping['ship_method'] => $row->ShipMethodRef,
+            $mapping['apply_tax_after_discount'] => $row->ApplyTaxAfterDiscount,
+            $mapping['total_amount'] => $row->TotalAmt
         ];
     }
 }

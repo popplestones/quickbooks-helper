@@ -95,11 +95,10 @@ trait SyncsWithQuickbooks
         {
             $additionalOption = $activeFilter ? "WHERE Active=true" : "";
             $rows = collect($qb_helper->dsCall('Query', "SELECT * FROM {$tableName} {$additionalOption} STARTPOSITION {$startPosition} MAXRESULTS {$maxResults}"));
-            $this->info("Running Callback for each row");
             $rows->each($callback);
             $noOfRows = $rows->count();
 
-            $this->info("Query from {$startPosition} & max {$maxResults}. No of rows: {$noOfRows}");
+            $this->info("Imported {$noOfRows} records.");
             $startPosition += $maxResults;
         } while (!is_null($rows) && is_array($rows) && $noOfRows > $maxResults);
     }

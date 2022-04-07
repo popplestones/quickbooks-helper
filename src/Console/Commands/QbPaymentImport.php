@@ -47,8 +47,8 @@ class QbPaymentImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Import payments...");
-    
+        $this->info("Importing payments to {$this->modelName}");
+
         $this->importModels(
             modelName: $this->modelName,
             tableName: 'Payment',
@@ -64,11 +64,6 @@ class QbPaymentImport extends Command
 
                 if (!$customer) {
                     $this->warn("Skipping payment, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
-                    return;
-                }
-
-                if (!$paymentMethod) {
-                    $this->warn("Skipping payment, payment method #{$row->PaymentMethodRef} doesn't exist, try importing payment methods with qb:payment-method:import");
                     return;
                 }
 

@@ -42,6 +42,7 @@ class QbAccountImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
+        $this->info("Importing accounts to {$this->modelName}");
         $this->importModels(
             modelName: $this->modelName,
             tableName: 'Account',

@@ -42,7 +42,7 @@ class QbPaymentMethodImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Import payment methods...");
+        $this->info("Importing payment methods to {$this->modelName}");
         $this->importModels(
             modelName: $this->modelName,
             tableName: 'PaymentMethod',

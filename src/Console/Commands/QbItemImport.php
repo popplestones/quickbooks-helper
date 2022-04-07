@@ -42,6 +42,7 @@ class QbItemImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
+        $this->info("Importing items to {$this->modelName}");
         $this->importModels(
             modelName: $this->modelName,
             tableName: 'Item',
