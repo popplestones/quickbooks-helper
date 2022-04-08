@@ -44,11 +44,22 @@ return [
             'ship_method' => 'ship_method',
             'apply_tax_after_discount' => 'apply_tax_after_discount',
             'total_amount' => 'total_amount',
-            'qb_invoice_id' => 'qb_invoice_id'
+            'qb_invoice_id' => 'qb_invoice_id',
+            'customer_ref' => 'customer_id'
         ],
     ],
     'invoiceLine' => [
         'model' => 'App\Models\InvoiceLine',
+        'attributeMap' => [
+            'invoice_ref' => 'invoice_id',
+            'amount' => 'amount',
+            'detail_type' => 'detail_type',
+            'description' => 'description',
+            'line_num' => 'line_num',
+            'item_ref' => 'product_id',
+            'qty' => 'qty',
+            'unit_price' => 'unit_price'
+        ]
     ],
     'item' => [
         'model' => 'App\Models\Product',
@@ -158,6 +169,7 @@ return [
     ],
     'payment' => [
         'model' => 'App\Models\Payment',
+        'lineRelationship' => 'payment_lines',
         'attributeMap' => [
             'id' => 'id',
             'transaction_date' => 'transaction_date',
@@ -174,6 +186,14 @@ return [
             'account_id' => 'account.qb_account_id',
             'customer_id' => 'customer.qb_customer_id',
             'payment_method_id' => 'paymentMethod.qb_payment_method_id'
+        ]
+    ],
+    'paymentLine' => [
+        'model' => 'App\Models\PaymentLine',
+        'attributeMap' => [
+            'amount' => 'amount',
+            'invoice_ref' => 'invoice_id',
+            'payment_ref' => 'payment_id'
         ]
     ],
     'data_service' => [

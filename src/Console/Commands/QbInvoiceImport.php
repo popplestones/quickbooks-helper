@@ -33,7 +33,7 @@ class QbInvoiceImport extends Command
     {
         $this->modelName = config('quickbooks.invoice.model');
         $this->invoiceLineModel = config('quickbooks.invoiceLine.model');
-        $this->invoiceLineMapping = config('quickbooks.invoiceLine.attributeMap');
+        $this->lineMapping = config('quickbooks.invoiceLine.attributeMap');
         $this->mapping = config('quickbooks.invoice.attributeMap');
         $this->qb_helper = new QuickbooksHelper();
     }
@@ -53,7 +53,6 @@ class QbInvoiceImport extends Command
             modelName:$this->modelName,
             tableName: 'Invoice',
             callback: function($row) {
-                $this->info("Executing import callback.");
                 $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
 
                 if (!$customer) {
@@ -61,18 +60,18 @@ class QbInvoiceImport extends Command
                     return;
                 }
 
-                $this->info(json_encode($this->setDataMapping($row, $this->mapping, $customer)));
+                $invoice = app($this->modelName)::updateOrCreate([$this->mapping['qb_invoice_id'] => $row->Id], $this->setDataMapping($row, $this->mapping, $customer));
 
-                $this->warn("Creating invoice:");
-                $this->warn(json_encode($this->setDataMapping($row, $this->mapping)));
-                $invoice = app($this->modelName)::updateOrCreate([$this->mapping['qb_invoice_id'] => $row->Id], $this->setDataMapping($row, $this->mapping));                $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', "billing_", $this->mapping));
-
-                $this->warn("Clearing existing invoice lines");
                 $invoice->{config('quickbooks.invoice.lineRelationship')}()->delete();
 
                 collect($row->Line)->each(function($line) use ($invoice) {
-                    $this->warn("Creating invoice line:");
-                    $this->warn(json_encode($this->setLineMapping($line, $this->lineMapping)));
+                    if ($line->DetailType === 'SalesItemLineDetail') {
+                        $product = $this->getProduct($line->SalesItemLineDetail?->ItemRef);
+                        if (!$product) {
+                            $this->warn("Skipping invoice line, Item #{$line->SalesItemLineDetail->ItemRef} doesn't exist, try importing items with qb:item:import");
+                            return;
+                        }
+                    }
                     $this->invoiceLineModel::create($this->setLineMapping($line, $this->lineMapping, $invoice));
                 });
             },
@@ -82,15 +81,30 @@ class QbInvoiceImport extends Command
         return 0;
     }
 
+    private function getProduct($qb_id)
+    {
+        $model = config('quickbooks.item.model');
+        $map = config('quickbooks.item.attributeMap');
+        return $model::where($map['qb_id'], $qb_id)->first();
+    }
+
     private function setLineMapping($line, $mapping, $invoice)
     {
         return [
-            
+            $mapping['invoice_ref'] => $invoice->id,
+            $mapping['amount'] => $line->Amount,
+            $mapping['detail_type'] => $line->DetailType,
+            $mapping['description'] => $line->Description,
+            $mapping['line_num'] => $line->LineNum,
+            $mapping['item_ref'] => $this->getProduct($line->SalesItemLineDetail?->ItemRef)?->getKey(),
+            $mapping['qty'] => $line->SalesItemLineDetail?->Qty,
+            $mapping['unit_price'] => $line->SalesItemLineDetail?->UnitPrice,
         ];
     }
-    private function setDataMapping($row, $mapping)
+    private function setDataMapping($row, $mapping, $customer)
     {
         return [
+
             $mapping['transaction_date'] => $row->TxnDate,
             $mapping['currency_ref'] => $row->CurrencyRef,
             $mapping['exchange_rate'] => $row->ExchangeRate,
@@ -102,7 +116,8 @@ class QbInvoiceImport extends Command
             $mapping['customer_memo'] => $row->CustomerMemo,
             $mapping['ship_method'] => $row->ShipMethodRef,
             $mapping['apply_tax_after_discount'] => $row->ApplyTaxAfterDiscount,
-            $mapping['total_amount'] => $row->TotalAmt
+            $mapping['total_amount'] => $row->TotalAmt,
+            $mapping['customer_ref'] => $customer->id
         ];
     }
 }

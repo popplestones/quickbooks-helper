@@ -27,13 +27,16 @@ class QbPaymentImport extends Command
     protected $description = 'Import payments from Quickbooks';
 
     public $modelName;
+    public $paymentLineModel;
     public $mapping;
     public $qb_helper;
 
     private function setup()
     {
         $this->modelName = config('quickbooks.payment.model');
+        $this->paymentLineModel = config('quickbooks.paymentLine.model');
         $this->mapping = config('quickbooks.payment.attributeMap');
+        $this->lineMapping = config('quickbooks.paymentLine.attributeMap');
         $this->qb_helper = new QuickbooksHelper();
     }
 
@@ -59,22 +62,45 @@ class QbPaymentImport extends Command
 
                 if (!$account) {
                     $this->warn("Skipping payment, account #{$row->DepositToAccountRef} doesn't exist, try importing accounts with qb:account:import");
-                    return;
+                    return true;
                 }
 
                 if (!$customer) {
                     $this->warn("Skipping payment, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
-                    return;
+                    return true;
                 }
 
-                app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_id'] => $row->Id], $this->setDataMapping($row, $this->mapping, $account, $customer));
+                $payment = app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_id'] => $row->Id], $this->setDataMapping($row, $this->mapping, $account, $customer));
+
+                $payment->{config('quickbooks.payment.lineRelationship')}()->delete();
+
+                if (!is_array($row->Line) && $row->Line !== null) {
+                    $this->createPaymentLine($payment, $row->Line);
+                    return true;
+                }
+
+                collect($row->Line)->each(fn($line) => $this->createPaymentLine($payment, $line));
             },
             activeFilter: false
             );
 
         return 0;
     }
-    public function setDataMapping($row, $mapping, $account, $customer)
+
+    private function createPaymentLine($payment, $line)
+    {
+        if ($line->LinkedTxn->TxnType === 'Invoice')
+        {
+            $invoice = $this->getInvoice($line->LinkedTxn->TxnId);
+            if (!$invoice) {
+                $this->warn("Skipping payment line, Invoice #{$line->LinkedTxn->TxnId} doesn't exist, try importing items with qb:invoice:import");
+                return;
+            }
+        }
+        $this->paymentLineModel::create($this->setLineMapping($line, $this->lineMapping, $payment));
+    }
+
+    private function setDataMapping($row, $mapping, $account, $customer)
     {
         return [
             $mapping['transaction_date'] => $row->TxnDate,
@@ -86,5 +112,21 @@ class QbPaymentImport extends Command
             $mapping['payment_method'] => $row->PaymentMethodRef,
             $mapping['private_note'] => $row->PrivateNote
         ];
+    }
+    private function setLineMapping($row, $mapping, $payment)
+    {
+        return [
+            $mapping['amount'] => $row->Amount,
+            $mapping['invoice_ref'] => $this->getInvoice($row->LinkedTxn->TxnId)?->getKey(),
+            $mapping['payment_ref'] => $payment->getKey()
+        ];
+    }
+
+    private function getInvoice($qb_invoice_id)
+    {
+        $model = config('quickbooks.invoice.model');
+        $map = config('quickbooks.invoice.attributeMap');
+
+        return $model::where($map['qb_invoice_id'], $qb_invoice_id)->first();
     }
 }
