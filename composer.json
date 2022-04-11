@@ -21,7 +21,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Popplestones\\Quickbooks\\Providers\\QuickbooksHelperServiceProvider"
+                "Popplestones\\Quickbooks\\Providers\\QuickbooksHelperServiceProvider",
+                "Popplestones\\Quickbooks\\Providers\\QuickbooksClientServiceProvider"
             ],
             "aliases": {
                 "Quickbooks": "Popplestones\\Quickbooks\\Facades\\QuickbooksFacade",
