@@ -219,7 +219,8 @@ return [
         'paths' => [
             'connect' => 'connect',
             'disconnect' => 'disconnect',
-            'token' => 'token'
+            'token' => 'token',
+            'redirect' => 'dashboard'
         ],
 
         'prefix' => 'quickbooks'
