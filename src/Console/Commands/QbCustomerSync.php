@@ -35,7 +35,7 @@ class QbCustomerSync extends Command
      *
      * @var string
      */
-    protected $signature = 'qb:customer:sync {--id=*} {--limit=20} {--force}';
+    protected $signature = 'qb:customer:sync {--id=*} {--limit=20} {--force} {--pretend}';
 
     /**
      * The console command description.
@@ -73,18 +73,21 @@ class QbCustomerSync extends Command
                 $error = $this->getExistingRecord('Customer', 'qb_customer_id', $customer, $customer_params);
                 if ($error) return true;
 
+
+                if ($this->option('pretend')) return true;
+
                 $qbCustomer = Customer::{$this->objMethod}(...$customer_params);
                 $result = $this->qb_helper->dsCall($this->apiMethod, $qbCustomer);
 
                 if ($result) {
                     $this->info("Success! Quickbooks Customer ID #{$result->Id}");
                     $customer->{$this->mapping['qb_customer_id']} = $result->Id;
-                }
-                else {
+                } else {
                     $this->warn('Adding customer failed!');
                     $this->warn(json_encode($customer));
                 }
                 $customer->save();
+
             } catch (\Exception $e) {
                 $this->syncFailed($e, $customer, 'customer');
                 return false;
