@@ -100,6 +100,6 @@ trait SyncsWithQuickbooks
 
             $this->info("Imported {$noOfRows} records.");
             $startPosition += $maxResults;
-        } while ($rows->isNotEmpty() && $noOfRows > $maxResults);
+        } while ($rows->isNotEmpty() && $noOfRows >= $maxResults);
     }
 }
