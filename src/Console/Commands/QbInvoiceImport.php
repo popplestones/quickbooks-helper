@@ -108,7 +108,7 @@ class QbInvoiceImport extends Command
             $mapping['transaction_date'] => $row->TxnDate,
             $mapping['currency_ref'] => $row->CurrencyRef,
             $mapping['exchange_rate'] => $row->ExchangeRate,
-            $mapping['bill_email'] => $row->BillEmail,
+            $mapping['bill_email'] => $row->BillEmail?->Address,
             $mapping['ship_date'] => $row->ShipDate,
             $mapping['tracking_num'] => $row->TrackingNum,
             $mapping['due_date'] => $row->DueDate,

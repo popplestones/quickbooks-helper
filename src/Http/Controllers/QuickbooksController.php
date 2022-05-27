@@ -38,6 +38,6 @@ class QuickbooksController extends Controller
     {
         $quickbooks->exchangeCodeForToken($request->get('code'), $request->get('realmId'));
 
-        return $redirector->intended($url_generator->route(config('quickbooks.paths.redirect')));
+        return $redirector->intended($url_generator->route(config('quickbooks.route.paths.redirect')));
     }
 }
