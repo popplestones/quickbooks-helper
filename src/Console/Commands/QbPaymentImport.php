@@ -102,7 +102,7 @@ class QbPaymentImport extends Command
             $mapping['exchange_rate'] => $row->ExchangeRate,
             $mapping['total_amount'] => $row->TotalAmt,
             $mapping['customer_ref'] => $customer->id,
-            $mapping['deposit_account'] => $account->id,
+            $mapping['deposit_account'] => $account?->id,
             $mapping['payment_method'] => $row->PaymentMethodRef,
             $mapping['private_note'] => $row->PrivateNote,
             'type' => 'payment'
