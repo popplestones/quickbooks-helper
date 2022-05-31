@@ -110,7 +110,8 @@ class QbPaymentImport extends Command
             $mapping['customer_ref'] => $customer->id,
             $mapping['deposit_account'] => $account->id,
             $mapping['payment_method'] => $row->PaymentMethodRef,
-            $mapping['private_note'] => $row->PrivateNote
+            $mapping['private_note'] => $row->PrivateNote,
+            'type' => 'payment'
         ];
     }
     private function setLineMapping($row, $mapping, $payment)

@@ -117,7 +117,8 @@ class QbInvoiceImport extends Command
             $mapping['ship_method'] => $row->ShipMethodRef,
             $mapping['apply_tax_after_discount'] => $row->ApplyTaxAfterDiscount,
             $mapping['total_amount'] => $row->TotalAmt,
-            $mapping['customer_ref'] => $customer->id
+            $mapping['customer_ref'] => $customer->id,
+            'type' => 'invoice'
         ];
     }
 }
