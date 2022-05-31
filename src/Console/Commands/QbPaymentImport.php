@@ -6,7 +6,6 @@ use App\Models\Account;
 use App\Models\Customer;
 use App\Models\PaymentMethod;
 use Illuminate\Console\Command;
-use oasis\names\specification\ubl\schema\xsd\CommonAggregateComponents_2\PaymentMeans;
 use Popplestones\Quickbooks\Services\QuickbooksHelper;
 
 class QbPaymentImport extends Command
@@ -59,11 +58,6 @@ class QbPaymentImport extends Command
                 $account = Account::where(config('quickbooks.account.attributeMap.qb_account_id'), $row->DepositToAccountRef)->first();
                 $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
                 $paymentMethod = PaymentMethod::where(config('quickbooks.paymentMethod.attributeMap.qb_payment_method_id'), $row->PaymentMethodRef)->first();
-
-                if (!$account) {
-                    $this->warn("Skipping payment, account #{$row->DepositToAccountRef} doesn't exist, try importing accounts with qb:account:import");
-                    return true;
-                }
 
                 if (!$customer) {
                     $this->warn("Skipping payment, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
