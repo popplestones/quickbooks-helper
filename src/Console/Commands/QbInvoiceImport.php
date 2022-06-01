@@ -104,7 +104,6 @@ class QbInvoiceImport extends Command
     private function setDataMapping($row, $mapping, $customer)
     {
         return [
-
             $mapping['transaction_date'] => $row->TxnDate,
             $mapping['currency_ref'] => $row->CurrencyRef,
             $mapping['exchange_rate'] => $row->ExchangeRate,
@@ -118,7 +117,19 @@ class QbInvoiceImport extends Command
             $mapping['apply_tax_after_discount'] => $row->ApplyTaxAfterDiscount,
             $mapping['total_amount'] => $row->TotalAmt,
             $mapping['customer_ref'] => $customer->id,
-            'type' => 'invoice'
+            $mapping['doc_number'] => $row->DocNumber,
+            $mapping['transaction_type'] => 'invoice',
+            $mapping['line1'] => $row->BillAddr?->Line1,
+            $mapping['line2'] => $row->BillAddr?->Line2,
+            $mapping['line3'] => $row->BillAddr?->Line3,
+            $mapping['line4'] => $row->BillAddr?->Line4,
+            $mapping['line5'] => $row->BillAddr?->Line5,
+            $mapping['city'] => $row->BillAddr?->City,
+            $mapping['country'] => $row->BillAddr?->Country,
+            $mapping['state'] => $row->BillAddr?->CountrySubDivisionCode,
+            $mapping['postal_code'] => $row->BillAddr?->PostalCode,
+            $mapping['postal_code_suffix'] => $row->BillAddr?->PostalCodeSuffix,
+            $mapping['country_code'] => $row->BillAddr?->CountryCode,
         ];
     }
 }
