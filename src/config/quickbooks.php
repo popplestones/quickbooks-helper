@@ -3,6 +3,22 @@
 use function PHPSTORM_META\map;
 
 return [
+    'term' => [
+        'model' => 'App\Models\Term',
+        'attributeMap' => [
+            'id' => 'id',
+            'qb_term_id' => 'qb_term_id',
+            'name' => 'name',
+            'discount_percent' => 'discount_percent',
+            'discount_days' => 'discount_days',
+            'active' => 'active',
+            'type' => 'type',
+            'day_of_month_due' => 'day_of_month_due',
+            'discount_day_of_month' => 'discount_day_of_month',
+            'due_next_month_days' => 'due_next_month_days',
+            'due_days' => 'due_days',
+        ]
+    ],
     'account'       => [
         'model'        => 'App\Models\Account',
         'attributeMap' => [
