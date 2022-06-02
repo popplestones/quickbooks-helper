@@ -52,6 +52,7 @@ class QbTermImport extends Command
 
         return 0;
     }
+    
 
     protected function setDataMapping($row, $mapping)
     {

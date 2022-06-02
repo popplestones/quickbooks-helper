@@ -97,7 +97,15 @@ class QbCustomerImport extends Command
             $mapping['preferred_delivery_method'] => $row->PreferredDeliveryMethod,
             $mapping['is_project'] => $row->IsProject === 'true',
             $mapping['primary_email_addr'] => $row->PrimaryEmailAddr?->Address,
-            $mapping['primary_phone'] => $row->PrimaryPhone?->FreeFormNumber
+            $mapping['primary_phone'] => $row->PrimaryPhone?->FreeFormNumber,
+            $mapping['item_ref'] => $this->getTerm($row->SalesTermRef)?->getKey(),
         ];
+    }
+
+    private function getTerm($qb_id)
+    {
+        $model = config('quickbooks.term.model');
+        $map = config('quickbooks.term.attributeMap');
+        return $model::where($map['qb_term_id'], $qb_id)->first();
     }
 }
