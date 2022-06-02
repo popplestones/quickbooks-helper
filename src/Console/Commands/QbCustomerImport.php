@@ -98,7 +98,7 @@ class QbCustomerImport extends Command
             $mapping['is_project'] => $row->IsProject === 'true',
             $mapping['primary_email_addr'] => $row->PrimaryEmailAddr?->Address,
             $mapping['primary_phone'] => $row->PrimaryPhone?->FreeFormNumber,
-            $mapping['item_ref'] => $this->getTerm($row->SalesTermRef)?->getKey(),
+            $mapping['term_id'] => $this->getTerm($row->SalesTermRef)?->getKey(),
         ];
     }
 

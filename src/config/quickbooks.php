@@ -3,20 +3,20 @@
 use function PHPSTORM_META\map;
 
 return [
-    'term' => [
-        'model' => 'App\Models\Term',
+    'term'          => [
+        'model'        => 'App\Models\Term',
         'attributeMap' => [
-            'id' => 'id',
-            'qb_term_id' => 'qb_term_id',
-            'name' => 'name',
-            'discount_percent' => 'discount_percent',
-            'discount_days' => 'discount_days',
-            'active' => 'active',
-            'type' => 'type',
-            'day_of_month_due' => 'day_of_month_due',
+            'id'                    => 'id',
+            'qb_term_id'            => 'qb_term_id',
+            'name'                  => 'name',
+            'discount_percent'      => 'discount_percent',
+            'discount_days'         => 'discount_days',
+            'active'                => 'active',
+            'type'                  => 'type',
+            'day_of_month_due'      => 'day_of_month_due',
             'discount_day_of_month' => 'discount_day_of_month',
-            'due_next_month_days' => 'due_next_month_days',
-            'due_days' => 'due_days',
+            'due_next_month_days'   => 'due_next_month_days',
+            'due_days'              => 'due_days',
         ]
     ],
     'account'       => [
@@ -173,6 +173,7 @@ return [
             'billing_longitude'                  => 'billing_address.longitude',
             'billing_tag'                        => 'billing_address.tag',
             'billing_note'                       => 'billing_address.note',
+            'term_id'                            => 'term_id',
             'qb_customer_id'                     => 'qb_customer_id',
             'sync_failed'                        => 'sync_failed',
         ],
