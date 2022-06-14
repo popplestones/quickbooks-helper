@@ -53,6 +53,7 @@ class QbInvoiceImport extends Command
             modelName:$this->modelName,
             tableName: 'Invoice',
             callback: function($row) {
+                info(json_encode($row));
                 $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
 
                 if (!$customer) {
