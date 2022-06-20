@@ -3,20 +3,20 @@
 use function PHPSTORM_META\map;
 
 return [
-    'term' => [
-        'model' => 'App\Models\Term',
+    'term'          => [
+        'model'        => 'App\Models\Term',
         'attributeMap' => [
-            'id' => 'id',
-            'qb_term_id' => 'qb_term_id',
-            'name' => 'name',
-            'discount_percent' => 'discount_percent',
-            'discount_days' => 'discount_days',
-            'active' => 'active',
-            'type' => 'type',
-            'day_of_month_due' => 'day_of_month_due',
+            'id'                    => 'id',
+            'qb_term_id'            => 'qb_term_id',
+            'name'                  => 'name',
+            'discount_percent'      => 'discount_percent',
+            'discount_days'         => 'discount_days',
+            'active'                => 'active',
+            'type'                  => 'type',
+            'day_of_month_due'      => 'day_of_month_due',
             'discount_day_of_month' => 'discount_day_of_month',
-            'due_next_month_days' => 'due_next_month_days',
-            'due_days' => 'due_days',
+            'due_next_month_days'   => 'due_next_month_days',
+            'due_days'              => 'due_days',
         ]
     ],
     'account'       => [
@@ -215,6 +215,7 @@ return [
             'payment_method'    => 'payment_method_id',
             'private_note'      => 'private_note',
             'qb_payment_id'     => 'qb_payment_id',
+            'payment_ref'       => 'payment_ref',
             'sync_failed'       => 'sync_failed',
             'account_type'      => 'account.account_type',
             'account_id'        => 'account.qb_account_id',

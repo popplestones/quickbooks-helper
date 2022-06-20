@@ -105,6 +105,7 @@ class QbPaymentImport extends Command
             $mapping['deposit_account'] => $account?->id,
             $mapping['payment_method'] => $row->PaymentMethodRef,
             $mapping['private_note'] => $row->PrivateNote,
+            $mapping['payment_ref'] => $row->PaymentRefNum,
             'type' => 'payment'
         ];
     }
