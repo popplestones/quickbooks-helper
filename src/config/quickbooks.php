@@ -173,6 +173,7 @@ return [
             'billing_longitude'                  => 'billing_address.longitude',
             'billing_tag'                        => 'billing_address.tag',
             'billing_note'                       => 'billing_address.note',
+            'term_id'                            => 'term_id',
             'qb_customer_id'                     => 'qb_customer_id',
             'sync_failed'                        => 'sync_failed',
         ],

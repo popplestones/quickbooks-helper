@@ -18,6 +18,7 @@ use Popplestones\Quickbooks\Console\Commands\QbPaymentImport;
 use Popplestones\Quickbooks\Console\Commands\QbPaymentMethodImport;
 use Popplestones\Quickbooks\Console\Commands\QbPaymentSync;
 use Popplestones\Quickbooks\Console\Commands\QbTaxCodeImport;
+use Popplestones\Quickbooks\Console\Commands\QbTermImport;
 use Popplestones\Quickbooks\Facades\CallbackManager;
 use Popplestones\Quickbooks\Services\QuickbooksClient;
 
@@ -66,7 +67,8 @@ class QuickbooksHelperServiceProvider extends ServiceProvider
                 QbPaymentMethodImport::class,
                 QbPaymentImport::class,
                 QbPaymentSync::class,
-                QbTaxCodeImport::class
+                QbTaxCodeImport::class,
+                QbTermImport::class
             ]);
         }
         return $this;
