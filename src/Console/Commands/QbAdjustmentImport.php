@@ -37,19 +37,19 @@ class QbAdjustmentImport extends Command
 
         $this->importModels(
             modelName: $this->modelName,
-            tableName: 'Adjustment',
+            tableName: 'CreditMemo',
             callback: function($row) {
                 info(json_encode($row));
                 $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
 
                 if (!$customer) {
-                    $this->warn("Skipping invoice, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
+                    $this->warn("Skipping adjustment, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
                     return;
                 }
 
                 $adjustment = app($this->modelName)::updateOrCreate([$this->mapping['qb_adjustment_id'] => $row->Id], $this->setDataMapping($row, $this->mapping, $customer));
 
-                $adjustment->{config('quickbooks.invoice.lineRelationship')}()->delete();
+                $adjustment->{config('quickbooks.adjustment.lineRelationship')}()->delete();
 
                 collect($row->Line)->each(function($line) use ($adjustment) {
                     if ($line->DetailType === 'SalesItemLineDetail') {
@@ -59,7 +59,7 @@ class QbAdjustmentImport extends Command
                             return;
                         }
                     }
-                    $this->invoiceLineModel::create($this->setLineMapping($line, $this->lineMapping, $invoice));
+                    $this->adjustmentLineModel::create($this->setLineMapping($line, $this->lineMapping, $adjustment));
                 });
             },
             activeFilter: false
