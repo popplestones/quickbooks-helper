@@ -39,6 +39,7 @@ class QbAdjustmentImport extends Command
             modelName: $this->modelName,
             tableName: 'CreditMemo',
             callback: function($row) {
+                info("Importing adjustment:");
                 info(json_encode($row));
                 $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
 
@@ -63,7 +64,6 @@ class QbAdjustmentImport extends Command
                 });
             },
             activeFilter: false
-            }
         );
     }
 }
