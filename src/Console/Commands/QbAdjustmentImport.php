@@ -67,6 +67,13 @@ class QbAdjustmentImport extends Command
         );
     }
 
+    private function getProduct($qb_id)
+    {
+        $model = config('quickbooks.item.model');
+        $map = config('quickbooks.item.attributeMap');
+        return $model::where($map['qb_id'], $qb_id)->first();
+    }
+
     private function setLineMapping($line, $mapping, $adjustment)
     {
         return [
