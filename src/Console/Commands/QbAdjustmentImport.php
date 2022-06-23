@@ -105,7 +105,7 @@ class QbAdjustmentImport extends Command
             $mapping['balance'] => $row->Balance,
             $mapping['customer_ref'] => $customer->id,
             $mapping['doc_number'] => $row->DocNumber,
-            $mapping['transaction_type'] => 'invoice',
+            $mapping['transaction_type'] => 'adjustment',
             $mapping['line1'] => $row->BillAddr?->Line1,
             $mapping['line2'] => $row->BillAddr?->Line2,
             $mapping['line3'] => $row->BillAddr?->Line3,
