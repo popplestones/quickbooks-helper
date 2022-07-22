@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Popplestones\Quickbooks\Console\Commands\QbAccountImport;
 use Popplestones\Quickbooks\Console\Commands\QbAccountSync;
+use Popplestones\Quickbooks\Console\Commands\QbAdjustmentImport;
 use Popplestones\Quickbooks\Console\Commands\QbCustomerImport;
 use Popplestones\Quickbooks\Console\Commands\QbCustomerSync;
 use Popplestones\Quickbooks\Console\Commands\QbInvoiceImport;
@@ -68,7 +69,8 @@ class QuickbooksHelperServiceProvider extends ServiceProvider
                 QbPaymentImport::class,
                 QbPaymentSync::class,
                 QbTaxCodeImport::class,
-                QbTermImport::class
+                QbTermImport::class,
+                QbAdjustmentImport::class
             ]);
         }
         return $this;
