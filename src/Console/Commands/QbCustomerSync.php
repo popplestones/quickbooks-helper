@@ -86,6 +86,7 @@ class QbCustomerSync extends Command
                     $this->warn('Adding customer failed!');
                     $this->warn(json_encode($customer));
                 }
+                $customer->{$this->mapping['synced_at']} = now();
                 $customer->save();
 
             } catch (\Exception $e) {
