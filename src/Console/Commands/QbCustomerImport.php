@@ -50,7 +50,11 @@ class QbCustomerImport extends Command
             modelName: $this->modelName,
             tableName: 'Customer',
             callback: function ($row) {
-                $customer = app($this->modelName)::updateOrCreate([$this->mapping['qb_customer_id'] => $row->Id], $this->setDataMapping($row, $this->mapping));
+                $customer = app($this->modelName)::firstOrNew([$this->mapping['qb_customer_id'] => $row->Id]);
+                $customer->timestamps = false;
+                $customer->fill($this->setDataMapping($row, $this->mapping));
+                $customer->save();
+
                 $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', "billing_", $this->mapping));
                 $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'shipping'], $this->setAddressMapping($row, 'ShipAddr', "shipping_", $this->mapping));
             }
@@ -101,7 +105,6 @@ class QbCustomerImport extends Command
             $mapping['primary_phone'] => $row->PrimaryPhone?->FreeFormNumber,
             $mapping['term_id'] => $this->getTerm($row->SalesTermRef)?->getKey(),
             $mapping['synced_at'] => now(),
-            $mapping['updated_at'] => DB::raw($mapping['updated_at'])
         ];
     }
 
