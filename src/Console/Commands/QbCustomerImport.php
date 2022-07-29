@@ -99,7 +99,8 @@ class QbCustomerImport extends Command
             $mapping['primary_email_addr'] => $row->PrimaryEmailAddr?->Address,
             $mapping['primary_phone'] => $row->PrimaryPhone?->FreeFormNumber,
             $mapping['term_id'] => $this->getTerm($row->SalesTermRef)?->getKey(),
-            $mapping['synced_at'] => now()
+            $mapping['synced_at'] => now(),
+            $mapping['updated_at'] => false
         ];
     }
 

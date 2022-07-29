@@ -176,6 +176,7 @@ return [
             'term_id'                            => 'term_id',
             'qb_customer_id'                     => 'qb_customer_id',
             'sync_failed'                        => 'sync_failed',
+            'updated_at'                         => 'updated_at'
         ],
         'address'      => [
             'model' => 'App\Models\Address',
