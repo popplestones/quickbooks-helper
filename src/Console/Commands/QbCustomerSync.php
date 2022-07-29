@@ -87,6 +87,7 @@ class QbCustomerSync extends Command
                     $this->warn(json_encode($customer));
                 }
                 $customer->{$this->mapping['synced_at']} = now();
+                if ($customer->exists) $customer->timestamps = false;
                 $customer->save();
 
             } catch (\Exception $e) {
