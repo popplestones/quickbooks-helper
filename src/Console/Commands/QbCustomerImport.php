@@ -3,6 +3,7 @@
 namespace Popplestones\Quickbooks\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Popplestones\Quickbooks\Services\QuickbooksHelper;
 
 class QbCustomerImport extends Command
@@ -100,7 +101,7 @@ class QbCustomerImport extends Command
             $mapping['primary_phone'] => $row->PrimaryPhone?->FreeFormNumber,
             $mapping['term_id'] => $this->getTerm($row->SalesTermRef)?->getKey(),
             $mapping['synced_at'] => now(),
-            $mapping['updated_at'] => false
+            $mapping['updated_at'] => DB::raw($mapping['updated_at'])
         ];
     }
 
