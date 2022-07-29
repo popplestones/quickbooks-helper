@@ -51,7 +51,10 @@ class QbCustomerImport extends Command
             tableName: 'Customer',
             callback: function ($row) {
                 $customer = app($this->modelName)::firstOrNew([$this->mapping['qb_customer_id'] => $row->Id]);
-                $customer->timestamps = false;
+
+                if ($customer->exists)
+                    $customer->timestamps = false;
+
                 $customer->fill($this->setDataMapping($row, $this->mapping));
                 $customer->save();
 
