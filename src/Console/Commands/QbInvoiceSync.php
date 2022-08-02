@@ -101,10 +101,8 @@ class QbInvoiceSync extends Command
                 }
 
                 $this->info("Updating synced_at");
-                $invoice->fill([
-                    'timestamps' => false,
-                    'synced_at' => now()
-                ]);
+                $invoice->timestamps = false;
+                $invoice->synced_at = now();
 
                 $invoice->save();
             } catch (\Exception $e) {
