@@ -119,7 +119,7 @@ class QbInvoiceSync extends Command
 
     private function prepareLineData($invoice)
     {
-        $invoice->invoiceLines->map(fn($line) => (object)[
+        return $invoice->invoiceLines->map(fn($line) => (object)[
             'Description' => $line->description,
             'DetailType' => $line->detail_type,
             'ItemRef' => (object)[
