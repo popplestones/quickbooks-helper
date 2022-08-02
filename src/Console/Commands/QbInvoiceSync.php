@@ -122,12 +122,14 @@ class QbInvoiceSync extends Command
         return $invoice->invoiceLines->map(fn($line) => (object)[
             'Description' => $line->description,
             'DetailType' => $line->detail_type,
-            'ItemRef' => (object)[
-                'name' => $line->item->name,
-                'value' => $line->item->qb_item_id],
+            'SalesItemLineDetail' => [
+                'ItemRef' => (object)[
+                    'name' => $line->item->name,
+                    'value' => $line->item->qb_item_id],
+                'Qty' => $line->qty,
+            ],
             'Amount' => $line->amount,
             'LineNum' => $line->line_num,
-            'Qty' => $line->qty,
             'UnitPrice' => $line->unit_price
         ])->toArray();
     }
