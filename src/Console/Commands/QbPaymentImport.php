@@ -91,6 +91,7 @@ class QbPaymentImport extends Command
                     collect($row->Line)->each(fn($line) => $this->createPaymentLine($payment, $line));
 
                     $payment->update([$this->mapping['synced_at'] => now()]);
+                    return 0;
                 },
                 activeFilter: false
             );
@@ -102,6 +103,8 @@ class QbPaymentImport extends Command
 
     private function createPaymentLine($payment, $line)
     {
+        $invoice = null;
+
         if ($line->LinkedTxn->TxnType === 'Invoice') {
             $invoice = $this->getInvoice($line->LinkedTxn->TxnId);
             if (!$invoice) {
@@ -110,6 +113,9 @@ class QbPaymentImport extends Command
             }
         }
         $this->paymentLineModel::create($this->setLineMapping($line, $this->lineMapping, $payment));
+
+        if ($invoice)
+            $invoice->update([config('quickbooks.invoice.attributeMap.synced_at') => now()]);
     }
 
     private function setDataMapping($row, $mapping, $account, $customer)
