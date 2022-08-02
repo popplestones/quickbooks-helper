@@ -91,7 +91,7 @@ trait SyncsWithQuickbooks
             return 1;
         }
 
-        $recordCount = $qb_helper->dsCall('Query', "SELECT * FROM {$tableName}");
+        $recordCount = $qb_helper->dsCall('Query', "SELECT COUNT(*) FROM {$tableName}");
         $this->output->progressStart($recordCount);
 
         do
