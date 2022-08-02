@@ -36,7 +36,7 @@ class QbInvoiceSync extends Command
      *
      * @var string
      */
-    protected $signature = 'qb:invoice:sync';
+    protected $signature = 'qb:invoice:sync {--id=*} {--limit=20} {--force}';
 
     /**
      * The console command description.
