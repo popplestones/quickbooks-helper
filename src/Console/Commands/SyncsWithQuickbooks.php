@@ -101,8 +101,7 @@ trait SyncsWithQuickbooks
             $rows->each($callback);
             $noOfRows = $rows->count();
             $this->output->progressAdvance($noOfRows);
-
-            $this->info("Imported {$noOfRows} records.");
+            
             $startPosition += $maxResults;
 
         } while ($rows->isNotEmpty() && $noOfRows === $maxResults);

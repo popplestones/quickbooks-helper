@@ -42,15 +42,20 @@ class QbAccountImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Importing accounts to {$this->modelName}");
-        $this->importModels(
-            modelName: $this->modelName,
-            tableName: 'Account',
-            callback: fn($row) =>
-                app($this->modelName)::updateOrCreate([$this->mapping['qb_account_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
-            );
+        $this->newLine();
 
-            return 0;
+        $this->components->task("Importing accounts to {$this->modelName}", function() {
+            $this->importModels(
+                modelName: $this->modelName,
+                tableName: 'Account',
+                callback: fn($row) =>
+                    app($this->modelName)::updateOrCreate(
+                        [$this->mapping['qb_account_id'] => $row->Id],
+                        $this->setDataMapping($row, $this->mapping))
+                );
+        });
+
+        return 0;
     }
 
     protected function setDataMapping($row, $mapping)
