@@ -123,9 +123,10 @@ class QbInvoiceSync extends Command
             'Description' => $line->description,
             'DetailType' => $line->detail_type,
             'SalesItemLineDetail' => [
-                'ItemRef' => (object)[
+                'ItemRef' => [
                     'name' => $line->item->name,
-                    'value' => $line->item->qb_item_id],
+                    'value' => $line->item->qb_item_id
+                ],
                 'Qty' => $line->qty,
             ],
             'Amount' => $line->amount,
