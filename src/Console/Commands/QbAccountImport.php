@@ -43,6 +43,7 @@ class QbAccountImport extends Command
         if (!$this->checkConnection()) return 1;
 
         $this->newLine();
+        $this->components->info("Importing accounts");
 
         $this->components->task("Importing accounts to {$this->modelName}", function() {
             $this->importModels(
@@ -53,6 +54,7 @@ class QbAccountImport extends Command
                         [$this->mapping['qb_account_id'] => $row->Id],
                         $this->setDataMapping($row, $this->mapping))
                 );
+            return 0;
         });
 
         return 0;
