@@ -72,8 +72,14 @@ class QbPaymentImport extends Command
                         return true;
                     }
 
-                    $payment = app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_id'] => $row->Id],
-                        $this->setDataMapping($row, $this->mapping, $account, $customer));
+                    $payment = app($this->modelName)::firstOrNew([$this->mapping['qb_payment_id'] => $row->Id]);
+
+                    if ($payment->exists) {
+                        $payment->timestamps = false;
+                    }
+
+                    $payment->fill($this->setDataMapping($row, $this->mapping, $account, $customer));
+                    $payment->save();
 
                     $payment->{config('quickbooks.payment.lineRelationship')}()->delete();
 
@@ -116,7 +122,8 @@ class QbPaymentImport extends Command
             $mapping['payment_method']   => $row->PaymentMethodRef,
             $mapping['private_note']     => $row->PrivateNote,
             $mapping['payment_ref']      => $row->PaymentRefNum,
-            'type'                       => 'payment'
+            'type'                       => 'payment',
+            'synced_at'                  => now()
         ];
     }
 

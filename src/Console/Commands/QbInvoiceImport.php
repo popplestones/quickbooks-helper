@@ -64,8 +64,15 @@ class QbInvoiceImport extends Command
                         return;
                     }
 
-                    $invoice = app($this->modelName)::updateOrCreate([$this->mapping['qb_invoice_id'] => $row->Id],
-                        $this->setDataMapping($row, $this->mapping, $customer));
+                    $invoice = app($this->modelName)::firstOrNew([$this->mapping['qb_invoice_id'] => $row->Id]);
+
+                    if ($invoice->exists) {
+                        $invoice->timestamps = false;
+                    }
+
+                    $invoice->fill($this->setDataMapping($row, $this->mapping, $customer));
+                    $invoice->save();
+
 
                     $invoice->{config('quickbooks.invoice.lineRelationship')}()->delete();
 
@@ -138,6 +145,7 @@ class QbInvoiceImport extends Command
             $mapping['postal_code'] => $row->BillAddr?->PostalCode,
             $mapping['postal_code_suffix'] => $row->BillAddr?->PostalCodeSuffix,
             $mapping['country_code'] => $row->BillAddr?->CountryCode,
+            $mapping['synced_at'] => now(),
         ];
     }
 }

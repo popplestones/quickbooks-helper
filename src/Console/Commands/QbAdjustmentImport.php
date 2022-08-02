@@ -49,8 +49,14 @@ class QbAdjustmentImport extends Command
                         return;
                     }
 
-                    $adjustment = app($this->modelName)::updateOrCreate([$this->mapping['qb_adjustment_id'] => $row->Id],
-                        $this->setDataMapping($row, $this->mapping, $customer));
+                    $adjustment = app($this->modelName)::firstOrNew([$this->mapping['qb_adjustment_id'] => $row->Id]);
+
+                    if ($adjustment->exists) {
+                        $adjustment->timestamps = false;
+                    }
+
+                    $adjustment->fill($this->setDataMapping($row, $this->mapping, $customer));
+                    $adjustment->save();
 
                     $adjustment->{config('quickbooks.adjustment.lineRelationship')}()->delete();
 
@@ -89,7 +95,7 @@ class QbAdjustmentImport extends Command
             $mapping['line_num'] => $line->LineNum,
             $mapping['item_ref'] => $this->getProduct($line->SalesItemLineDetail?->ItemRef)?->getKey(),
             $mapping['qty'] => $line->SalesItemLineDetail?->Qty,
-            $mapping['unit_price'] => $line->SalesItemLineDetail?->UnitPrice,
+            $mapping['unit_price'] => $line->SalesItemLineDetail?->UnitPrice
         ];
     }
     private function setDataMapping($row, $mapping, $customer)
@@ -122,6 +128,7 @@ class QbAdjustmentImport extends Command
             $mapping['postal_code'] => $row->BillAddr?->PostalCode,
             $mapping['postal_code_suffix'] => $row->BillAddr?->PostalCodeSuffix,
             $mapping['country_code'] => $row->BillAddr?->CountryCode,
+            $mapping['synced_at'] => now()
         ];
     }
 }
