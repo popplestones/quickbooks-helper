@@ -70,6 +70,8 @@ class QbAdjustmentImport extends Command
                         }
                         $this->adjustmentLineModel::create($this->setLineMapping($line, $this->lineMapping,
                             $adjustment));
+                        
+                        $adjustment->update([$this->mapping['synced_at'] => now()]);
                     });
                 },
                 activeFilter: false

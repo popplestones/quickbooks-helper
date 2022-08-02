@@ -89,6 +89,8 @@ class QbPaymentImport extends Command
                     }
 
                     collect($row->Line)->each(fn($line) => $this->createPaymentLine($payment, $line));
+
+                    $payment->update([$this->mapping['synced_at'] => now()]);
                 },
                 activeFilter: false
             );

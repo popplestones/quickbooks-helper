@@ -86,6 +86,7 @@ class QbInvoiceImport extends Command
                         }
                         $this->invoiceLineModel::create($this->setLineMapping($line, $this->lineMapping, $invoice));
                     });
+                    $invoice->update([$this->mapping['synced_at'] => now()]);
                 },
                 activeFilter: false
             );
