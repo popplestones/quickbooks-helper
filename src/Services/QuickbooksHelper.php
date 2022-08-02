@@ -41,13 +41,7 @@ class QuickbooksHelper
         if ($error = $this->dataService->getLastError()) {
             $message = '';
             if ($callable = debug_backtrace()[1]) {
-                try {
                     $message .= "{$callable['class']}@{$callable['function']} ==> REQ ==> ".json_encode($callable['args']).PHP_EOL;
-                } catch (\Exception $e)
-                {
-                    $message .= "issue with debug_backtrace results, appending json instead" . PHP_EOL;
-                    $message .= json_encode($callable).PHP_EOL;
-                }
             }
             $message .= $error->getIntuitErrorDetail();
             $message .= " {$error->getHttpStatusCode()}; {$error->getOAuthHelperError()}; {$error->getResponseBody()}";

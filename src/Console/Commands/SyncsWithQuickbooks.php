@@ -87,9 +87,12 @@ trait SyncsWithQuickbooks
 
         } catch (BindingResolutionException $ex)
         {
-            $this->error("Invalid model '{$modelName}'. Setup the model in the quickbooks.php config file.");
+            $this->components->error("Invalid model '{$modelName}'. Setup the model in the quickbooks.php config file.");
             return 1;
         }
+
+        $recordCount = $qb_helper->dsCall('Query', "SELECT * FROM {$tableName}");
+        $this->output->progressStart($recordCount);
 
         do
         {
@@ -97,10 +100,13 @@ trait SyncsWithQuickbooks
             $rows = collect($qb_helper->dsCall('Query', "SELECT * FROM {$tableName} {$additionalOption} STARTPOSITION {$startPosition} MAXRESULTS {$maxResults}"));
             $rows->each($callback);
             $noOfRows = $rows->count();
+            $this->output->progressAdvance($noOfRows);
 
             $this->info("Imported {$noOfRows} records.");
             $startPosition += $maxResults;
 
         } while ($rows->isNotEmpty() && $noOfRows === $maxResults);
+
+        $this->output->progressFinish();
     }
 }
