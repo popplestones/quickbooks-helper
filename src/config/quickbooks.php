@@ -79,7 +79,8 @@ return [
             'tag'                      => 'tag',
             'note'                     => 'note',
             'type'                     => 'type',
-            'doc_number'               => 'doc_number'
+            'doc_number'               => 'doc_number',
+            'synced_at'                => 'synced_at'
         ],
     ],
     'invoiceLine'   => [
@@ -176,7 +177,8 @@ return [
             'term_id'                            => 'term_id',
             'qb_customer_id'                     => 'qb_customer_id',
             'sync_failed'                        => 'sync_failed',
-            'updated_at'                         => 'updated_at'
+            'updated_at'                         => 'updated_at',
+            'synced_at'                          => 'synced_at'
         ],
         'address'      => [
             'model' => 'App\Models\Address',
@@ -222,7 +224,8 @@ return [
             'account_type'      => 'account.account_type',
             'account_id'        => 'account.qb_account_id',
             'customer_id'       => 'customer.qb_customer_id',
-            'payment_method_id' => 'paymentMethod.qb_payment_method_id'
+            'payment_method_id' => 'paymentMethod.qb_payment_method_id',
+            'synced_at'         => 'synced_at'
         ]
     ],
     'paymentLine'   => [
