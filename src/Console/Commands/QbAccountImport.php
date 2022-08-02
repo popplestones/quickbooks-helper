@@ -43,7 +43,7 @@ class QbAccountImport extends Command
         if (!$this->checkConnection()) return 1;
 
         $this->newLine();
-        $this->components->info("Importing accounts");
+        $this->components->info("Importing accounts to {$this->modelName}");
 
         $this->components->task("Importing accounts to {$this->modelName}", function() {
             $this->importModels(

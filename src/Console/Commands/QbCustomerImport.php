@@ -45,23 +45,31 @@ class QbCustomerImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Importing customers to {$this->modelName}");
-        $this->importModels(
-            modelName: $this->modelName,
-            tableName: 'Customer',
-            callback: function ($row) {
-                $customer = app($this->modelName)::firstOrNew([$this->mapping['qb_customer_id'] => $row->Id]);
+        $this->newLine();
+        $this->components->info("Importing customers to {$this->modelName}");
 
-                if ($customer->exists)
-                    $customer->timestamps = false;
+        $this->components->task("Importing customers to {$this->modelName}", function() {
+            $this->importModels(
+                modelName: $this->modelName,
+                tableName: 'Customer',
+                callback: function ($row) {
+                    $customer = app($this->modelName)::firstOrNew([$this->mapping['qb_customer_id'] => $row->Id]);
 
-                $customer->fill($this->setDataMapping($row, $this->mapping));
-                $customer->save();
+                    if ($customer->exists) {
+                        $customer->timestamps = false;
+                    }
 
-                $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'], $this->setAddressMapping($row, 'BillAddr', "billing_", $this->mapping));
-                $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'shipping'], $this->setAddressMapping($row, 'ShipAddr', "shipping_", $this->mapping));
-            }
-        );
+                    $customer->fill($this->setDataMapping($row, $this->mapping));
+                    $customer->save();
+
+                    $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'billing'],
+                        $this->setAddressMapping($row, 'BillAddr', "billing_", $this->mapping));
+                    $this->addressModel::updateOrCreate(['customer_id' => $customer->id, 'type' => 'shipping'],
+                        $this->setAddressMapping($row, 'ShipAddr', "shipping_", $this->mapping));
+                }
+            );
+            return 0;
+        });
 
         return 0;
     }

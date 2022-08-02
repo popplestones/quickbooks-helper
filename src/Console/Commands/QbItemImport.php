@@ -42,13 +42,18 @@ class QbItemImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Importing items to {$this->modelName}");
-        $this->importModels(
-            modelName: $this->modelName,
-            tableName: 'Item',
-            callback: fn($row) =>
-                app($this->modelName)::updateOrCreate([$this->mapping['qb_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
-            );
+        $this->newLine();
+        $this->components->info("Importing items to {$this->modelName}");
+
+        $this->components->task("Importing items to {$this->modelName}", function() {
+            $this->importModels(
+                modelName: $this->modelName,
+                tableName: 'Item',
+                callback: fn($row) =>
+                    app($this->modelName)::updateOrCreate([$this->mapping['qb_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
+                );
+            return 0;
+        });
 
         return 0;
     }

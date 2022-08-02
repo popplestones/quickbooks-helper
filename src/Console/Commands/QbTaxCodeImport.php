@@ -42,12 +42,19 @@ class QbTaxCodeImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->importModels(
-            modelName: $this->modelName,
-            tableName: 'TaxCode',
-            callback: fn($row) =>
-                app($this->modelName)::updateOrCreate([$this->mapping['qb_tax_code_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
+        $this->newLine();
+        $this->components->info("Importing tax codes to {$this->modelName}");
+
+        $this->components->task("Importing tax codes to {$this->modelName}", function() {
+            $this->importModels(
+                modelName: $this->modelName,
+                tableName: 'TaxCode',
+                callback: fn($row
+                ) => app($this->modelName)::updateOrCreate([$this->mapping['qb_tax_code_id'] => $row->Id],
+                    $this->setDataMapping($row, $this->mapping))
             );
+            return 0;
+        });
 
         return 0;
     }

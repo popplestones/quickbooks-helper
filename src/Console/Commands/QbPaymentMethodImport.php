@@ -8,6 +8,7 @@ use Popplestones\Quickbooks\Services\QuickbooksHelper;
 class QbPaymentMethodImport extends Command
 {
     use SyncsWithQuickbooks;
+
     /**
      * The name and signature of the console command.
      *
@@ -32,6 +33,7 @@ class QbPaymentMethodImport extends Command
         $this->mapping = config('quickbooks.paymentMethod.attributeMap');
         $this->qb_helper = new QuickbooksHelper();
     }
+
     /**
      * Execute the console command.
      *
@@ -40,15 +42,23 @@ class QbPaymentMethodImport extends Command
     public function handle()
     {
         $this->setup();
-        if (!$this->checkConnection()) return 1;
+        if (!$this->checkConnection()) {
+            return 1;
+        }
 
-        $this->info("Importing payment methods to {$this->modelName}");
-        $this->importModels(
-            modelName: $this->modelName,
-            tableName: 'PaymentMethod',
-            callback: fn($row) =>
-                app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_method_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
+        $this->newLine();
+        $this->components->info("Importing payment methods to {$this->modelName}");
+
+        $this->components->task("Importing payment methods to {$this->modelName}", function () {
+            $this->importModels(
+                modelName: $this->modelName,
+                tableName: 'PaymentMethod',
+                callback: fn($row
+                ) => app($this->modelName)::updateOrCreate([$this->mapping['qb_payment_method_id'] => $row->Id],
+                    $this->setDataMapping($row, $this->mapping))
             );
+            return 0;
+        });
 
         return 0;
     }
@@ -56,9 +66,9 @@ class QbPaymentMethodImport extends Command
     public function setDataMapping($row, $mapping)
     {
         return [
-            $mapping['name'] => $row->Name,
+            $mapping['name']   => $row->Name,
             $mapping['active'] => $row->Active === 'true',
-            $mapping['type'] => $row->Type,
+            $mapping['type']   => $row->Type,
         ];
     }
 }

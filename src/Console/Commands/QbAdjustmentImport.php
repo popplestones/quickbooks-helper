@@ -33,36 +33,43 @@ class QbAdjustmentImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Importing adjustments to {$this->modelName}");
+        $this->newLine();
+        $this->components->info("Importing adjustments to {$this->modelName}");
 
-        $this->importModels(
-            modelName: $this->modelName,
-            tableName: 'CreditMemo',
-            callback: function($row) {
-                $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
+        $this->components->task("Importing adjustments to {$this->modelName}", function() {
+            $this->importModels(
+                modelName: $this->modelName,
+                tableName: 'CreditMemo',
+                callback: function ($row) {
+                    $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'),
+                        $row->CustomerRef)->first();
 
-                if (!$customer) {
-                    $this->warn("Skipping adjustment, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
-                    return;
-                }
-
-                $adjustment = app($this->modelName)::updateOrCreate([$this->mapping['qb_adjustment_id'] => $row->Id], $this->setDataMapping($row, $this->mapping, $customer));
-
-                $adjustment->{config('quickbooks.adjustment.lineRelationship')}()->delete();
-
-                collect($row->Line)->each(function($line) use ($adjustment) {
-                    if ($line->DetailType === 'SalesItemLineDetail') {
-                        $product = $this->getProduct($line->SalesItemLineDetail?->ItemRef);
-                        if (!$product) {
-                            $this->warn("Skipping invoice line, Item #{$line->SalesItemLineDetail->ItemRef} doesn't exist, try importing items with qb:item:import");
-                            return;
-                        }
+                    if (!$customer) {
+                        $this->warn("Skipping adjustment, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
+                        return;
                     }
-                    $this->adjustmentLineModel::create($this->setLineMapping($line, $this->lineMapping, $adjustment));
-                });
-            },
-            activeFilter: false
-        );
+
+                    $adjustment = app($this->modelName)::updateOrCreate([$this->mapping['qb_adjustment_id'] => $row->Id],
+                        $this->setDataMapping($row, $this->mapping, $customer));
+
+                    $adjustment->{config('quickbooks.adjustment.lineRelationship')}()->delete();
+
+                    collect($row->Line)->each(function ($line) use ($adjustment) {
+                        if ($line->DetailType === 'SalesItemLineDetail') {
+                            $product = $this->getProduct($line->SalesItemLineDetail?->ItemRef);
+                            if (!$product) {
+                                $this->warn("Skipping invoice line, Item #{$line->SalesItemLineDetail->ItemRef} doesn't exist, try importing items with qb:item:import");
+                                return;
+                            }
+                        }
+                        $this->adjustmentLineModel::create($this->setLineMapping($line, $this->lineMapping,
+                            $adjustment));
+                    });
+                },
+                activeFilter: false
+            );
+            return 0;
+        });
     }
 
     private function getProduct($qb_id)

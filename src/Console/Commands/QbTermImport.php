@@ -42,13 +42,17 @@ class QbTermImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Importing terms to {$this->modelName}");
-        $this->importModels(
-            modelName: $this->modelName,
-            tableName: 'Term',
-            callback: fn($row) =>
-            app($this->modelName)::updateOrCreate([$this->mapping['qb_term_id'] => $row->Id], $this->setDataMapping($row, $this->mapping))
-        );
+        $this->newLine();
+        $this->components->info("Importing terms to {$this->modelName}");
+        $this->components->task("Importing terms to {$this->modelName}", function() {
+            $this->importModels(
+                modelName: $this->modelName,
+                tableName: 'Term',
+                callback: fn($row) => app($this->modelName)::updateOrCreate([$this->mapping['qb_term_id'] => $row->Id],
+                    $this->setDataMapping($row, $this->mapping))
+            );
+            return 0;
+        });
 
         return 0;
     }

@@ -48,35 +48,42 @@ class QbInvoiceImport extends Command
         $this->setup();
         if (!$this->checkConnection()) return 1;
 
-        $this->info("Importing invoices to {$this->modelName}");
-        $this->importModels(
-            modelName:$this->modelName,
-            tableName: 'Invoice',
-            callback: function($row) {
-                $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'), $row->CustomerRef)->first();
+        $this->newLine();
+        $this->components->info("Importing invoices to {$this->modelName}");
 
-                if (!$customer) {
-                    $this->warn("Skipping invoice, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
-                    return;
-                }
+        $this->components->task("Importing invoices to {$this->modelName}", function() {
+            $this->importModels(
+                modelName: $this->modelName,
+                tableName: 'Invoice',
+                callback: function ($row) {
+                    $customer = Customer::where(config('quickbooks.customer.attributeMap.qb_customer_id'),
+                        $row->CustomerRef)->first();
 
-                $invoice = app($this->modelName)::updateOrCreate([$this->mapping['qb_invoice_id'] => $row->Id], $this->setDataMapping($row, $this->mapping, $customer));
-
-                $invoice->{config('quickbooks.invoice.lineRelationship')}()->delete();
-
-                collect($row->Line)->each(function($line) use ($invoice) {
-                    if ($line->DetailType === 'SalesItemLineDetail') {
-                        $product = $this->getProduct($line->SalesItemLineDetail?->ItemRef);
-                        if (!$product) {
-                            $this->warn("Skipping invoice line, Item #{$line->SalesItemLineDetail->ItemRef} doesn't exist, try importing items with qb:item:import");
-                            return;
-                        }
+                    if (!$customer) {
+                        $this->warn("Skipping invoice, customer #{$row->CustomerRef} doesn't exist, try importing customer with qb:customer:import");
+                        return;
                     }
-                    $this->invoiceLineModel::create($this->setLineMapping($line, $this->lineMapping, $invoice));
-                });
-            },
-            activeFilter: false
-        );
+
+                    $invoice = app($this->modelName)::updateOrCreate([$this->mapping['qb_invoice_id'] => $row->Id],
+                        $this->setDataMapping($row, $this->mapping, $customer));
+
+                    $invoice->{config('quickbooks.invoice.lineRelationship')}()->delete();
+
+                    collect($row->Line)->each(function ($line) use ($invoice) {
+                        if ($line->DetailType === 'SalesItemLineDetail') {
+                            $product = $this->getProduct($line->SalesItemLineDetail?->ItemRef);
+                            if (!$product) {
+                                $this->warn("Skipping invoice line, Item #{$line->SalesItemLineDetail->ItemRef} doesn't exist, try importing items with qb:item:import");
+                                return;
+                            }
+                        }
+                        $this->invoiceLineModel::create($this->setLineMapping($line, $this->lineMapping, $invoice));
+                    });
+                },
+                activeFilter: false
+            );
+            return 0;
+        });
 
         return 0;
     }
