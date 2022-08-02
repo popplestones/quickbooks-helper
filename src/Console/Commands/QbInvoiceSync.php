@@ -128,7 +128,7 @@ class QbInvoiceSync extends Command
                 ],
                 'Qty' => $line->qty,
             ],
-            'Amount' => $line->amount,
+            'Amount' => floatval($line->amount),
             'LineNum' => $line->line_num,
             'UnitPrice' => $line->unit_price
         ])->toArray();
