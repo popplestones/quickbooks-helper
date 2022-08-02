@@ -14,6 +14,7 @@ use stdClass;
  * @method void registerAccounts(Closure $query, Closure $filter)
  * @method void registerItems(Closure $query, Closure $filter)
  * @method void registerPayments(Closure $query, Closure $filter)
+ * @method void registerInvoices(Closure $query, Closure $filter)
  */
 class CallbackManager
 {
@@ -22,7 +23,8 @@ class CallbackManager
         'customers',
         'accounts',
         'items',
-        'payments'
+        'payments',
+        'invoices'
     ];
 
     public function __construct()
