@@ -80,7 +80,8 @@ return [
             'note'                     => 'note',
             'type'                     => 'type',
             'doc_number'               => 'doc_number',
-            'synced_at'                => 'synced_at'
+            'synced_at'                => 'synced_at',
+            'sync_failed'              => 'sync_failed'
         ],
     ],
     'invoiceLine'   => [

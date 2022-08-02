@@ -140,22 +140,22 @@ class QbInvoiceSync extends Command
             'TotalAmt' => data_get($invoice, $this->mapping['total_amount']),
             'Line' => $this->prepareLineData($invoice),
             'DueDate' => data_get($invoice, $this->mapping['due_date']),
-            'CustomerMemo' => (object)[
+            'CustomerMemo' => [
                 'value' => data_get($invoice, $this->mapping['customer_memo']),
             ],
             'Balance' => data_get($invoice, $this->mapping['balance']),
-            'CustomerRef' => (object)[
+            'CustomerRef' => [
                 'name' => $invoice->customer->company_name,
                 'value' => $invoice->customer->qb_customer_id
             ],
-            'BillEmail' => (object)[
+            'BillEmail' => [
                 'Address' => $invoice->bill_email
             ],
-            'BillAddr' => (object)[
-                'Line4' => '',
-                'Line3' => '',
-                'Line2' => '',
-                'Line1' => ''
+            'BillAddr' => [
+                'Line4' => data_get($invoice, $this->mapping['line4']),
+                'Line3' => data_get($invoice, $this->mapping['line3']),
+                'Line2' => data_get($invoice, $this->mapping['line2']),
+                'Line1' => data_get($invoice, $this->mapping['line1'])
             ],
         ], function ($val) {
             return ! is_null($val);
